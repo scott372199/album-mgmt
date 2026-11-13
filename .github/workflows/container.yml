@@ -51,7 +51,7 @@ jobs:
 
       - name: Validate AWS publish role configuration
         env:
-          AWS_IMAGE_PUBLISH_ROLE_ARN: ${{ vars.AWS_IMAGE_PUBLISH_ROLE_ARN }}
+          AWS_IMAGE_PUBLISH_ROLE_ARN: ${{ vars.AWS_IMAGE_PUBLISH_ROLE_ARN || secrets.AWS_IMAGE_PUBLISH_ROLE_ARN }}
         run: |
           if [ -z "$AWS_IMAGE_PUBLISH_ROLE_ARN" ]; then
             echo "::error::Repository variable AWS_IMAGE_PUBLISH_ROLE_ARN is not configured"
@@ -62,7 +62,7 @@ jobs:
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ vars.AWS_IMAGE_PUBLISH_ROLE_ARN }}
+          role-to-assume: ${{ vars.AWS_IMAGE_PUBLISH_ROLE_ARN || secrets.AWS_IMAGE_PUBLISH_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
           role-session-name: album-mgmt-image-${{ github.run_id }}
 
