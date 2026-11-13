@@ -2,17 +2,40 @@ spring:
   application:
     name: album-mgmt
 
+server:
+  port: ${PORT:8080}
+
 management:
   endpoints:
     web:
       exposure:
         include: health,info,metrics,prometheus
-  tracing:
-    sampling:
-      probability: ${OTEL_TRACES_SAMPLING:0.0}
-  otlp:
-    tracing:
-      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://127.0.0.1:4318/v1/traces}
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: album-mgmt
 
-server:
-  port: ${PORT:8080}
+mgmt:
+  jwt:
+    # 独立管理站 JWT 密钥；绝不复用上传侧 secret / Independent mgmt JWT secret, never the upload secret
+    # 未设置时进程内随机生成（每次启动独立，不落仓库、不写入日志）
+    # When unset, a random in-process key is generated (never persisted, never logged)
+    secret: ${MGMT_JWT_SECRET:}
+    access-ttl-seconds: 3600       # 1h / 1 小时
+    refresh-ttl-seconds: 604800    # 7d / 7 天
+  identity:
+    # 本地 fixture 演示账户：principal 为演示标识（非手机号、非真实凭据）
+    # Local fixture demo accounts: principals are demo identifiers, not phone numbers or real credentials
+    # 生产实现接 SSM /album/auth/phones 白名单 + /album/auth/key_hash scrypt 校验
+    # Production implementation reads the SSM phone allowlist + scrypt shared key
+    accounts: ${MGMT_DEMO_ACCOUNTS:admin|admin,auditor|auditor,viewer|viewer}
+    demo-shared-key: ${MGMT_DEMO_SHARED_KEY:album-mgmt-demo}
+    scrypt-salt: ${MGMT_FIXTURE_SALT:album-mgmt-local-fixture-salt-v1}
+    pepper: ${MGMT_IDENTITY_PEPPER:local-fixture-only-pepper-v1}
+  providers:
+    # 本地默认数据源；cloud profile 才会加载 AWS/GitHub 只读骨架
+    # Local default data source; the cloud profile loads AWS/GitHub read-only skeletons
+    mode: ${MGMT_PROVIDER_MODE:fixture}
