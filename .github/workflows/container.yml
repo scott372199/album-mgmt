@@ -49,6 +49,16 @@ jobs:
       - name: Test and package
         run: ./gradlew clean test :app:bootJar
 
+      - name: Validate AWS publish role configuration
+        env:
+          AWS_IMAGE_PUBLISH_ROLE_ARN: ${{ vars.AWS_IMAGE_PUBLISH_ROLE_ARN }}
+        run: |
+          if [ -z "$AWS_IMAGE_PUBLISH_ROLE_ARN" ]; then
+            echo "::error::Repository variable AWS_IMAGE_PUBLISH_ROLE_ARN is not configured"
+            echo "Configure an AWS OIDC publish role before rerunning this workflow."
+            exit 1
+          fi
+
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
