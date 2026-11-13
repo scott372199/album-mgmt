@@ -60,6 +60,26 @@ jobs:
             exit 1
           fi
 
+      - name: Inspect non-sensitive OIDC claims
+        run: |
+          set -euo pipefail
+          token="$(curl --fail --silent \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" |
+            jq -r .value)"
+          claims="$(OIDC_TOKEN="$token" python3 - <<'PY'
+          import base64
+          import json
+          import os
+
+          payload = os.environ["OIDC_TOKEN"].split(".")[1]
+          payload += "=" * (-len(payload) % 4)
+          claims = json.loads(base64.urlsafe_b64decode(payload))
+          print(json.dumps({"sub": claims.get("sub"), "aud": claims.get("aud")}))
+          PY
+          )"
+          echo "$claims"
+
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
