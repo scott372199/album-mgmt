@@ -1,3 +1,4 @@
+# Build and publish the immutable management image from GitHub-hosted runners.
 name: management-container
 
 on:
