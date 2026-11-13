@@ -1,0 +1,95 @@
+name: management-container
+
+on:
+  pull_request:
+    paths:
+      - "Dockerfile"
+      - "app/**"
+      - "gradle/**"
+      - "gradlew"
+      - "gradle.properties"
+      - "settings.gradle.kts"
+      - "build.gradle.kts"
+      - "app/build.gradle.kts"
+      - ".github/workflows/container.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Dockerfile"
+      - "app/**"
+      - "gradle/**"
+      - "gradlew"
+      - "gradle.properties"
+      - "settings.gradle.kts"
+      - "build.gradle.kts"
+      - "app/build.gradle.kts"
+      - ".github/workflows/container.yml"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'ap-southeast-1' }}
+  ECR_REPOSITORY: album-mgmt
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Test and package
+        run: ./gradlew clean test :app:bootJar
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_IMAGE_PUBLISH_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: album-mgmt-image-${{ github.run_id }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build and push linux/amd64 image
+        id: build
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: sha-${{ github.sha }}
+        run: |
+          set -euo pipefail
+          image="${REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+          docker buildx build \
+            --platform linux/amd64 \
+            --tag "$image" \
+            --push \
+            --provenance=false \
+            --sbom=false \
+            .
+          digest="$(docker buildx imagetools inspect "$image" --format '{{json .Manifest.Digest}}' | tr -d '"')"
+          test -n "$digest"
+          image_uri="${REGISTRY}/${ECR_REPOSITORY}@${digest}"
+          echo "image_uri=${image_uri}" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Immutable management image"
+            echo
+            echo "\`$image_uri\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+          printf '%s\n' "$image_uri" > management-image-uri.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: management-image-uri-${{ github.sha }}
+          path: management-image-uri.txt
+          retention-days: 14

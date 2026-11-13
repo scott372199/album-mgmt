@@ -1,0 +1,11 @@
+{
+  "name": "album-mgmt-checks",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "web:install": "npm --prefix web install",
+    "web:build": "npm --prefix web run build"
+  }
+}
+

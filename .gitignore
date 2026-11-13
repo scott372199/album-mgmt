@@ -1,0 +1,26 @@
+.gradle/
+build/
+out/
+.idea/
+.vscode/
+.DS_Store
+
+# Local configuration and credentials
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.jks
+application-local.yml
+
+# Runtime and infrastructure state
+*.log
+terraform.tfstate*
+.terraform/
+*.tfplan
+
+# Frontend dependencies and output
+node_modules/
+dist/
+

@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: album-mgmt
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  tracing:
+    sampling:
+      probability: ${OTEL_TRACES_SAMPLING:0.0}
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://127.0.0.1:4318/v1/traces}
+
+server:
+  port: ${PORT:8080}
