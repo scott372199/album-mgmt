@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - "Dockerfile"
+      - ".dockerignore"
       - "app/**"
       - "gradle/**"
       - "gradlew"
@@ -17,6 +18,7 @@ on:
     branches: [main]
     paths:
       - "Dockerfile"
+      - ".dockerignore"
       - "app/**"
       - "gradle/**"
       - "gradlew"
