@@ -21,6 +21,7 @@ Java/Spring Boot and a management UI with React/Vite.*
 ## ECS Express 发布前流程
 
 推荐使用 `.github/workflows/container.yml` 在 GitHub-hosted `linux/amd64` runner 构建并推送 immutable image；不依赖本机 Docker daemon，也不使用 `latest`。workflow 需要配置 OIDC role variable `AWS_IMAGE_PUBLISH_ROLE_ARN`，并将 digest artifact 中的 URI 设置为 Terraform 的 `management_image_uri`。
+该 workflow 仅在 `main` branch 的 repository push 上发布；AWS role trust policy 只允许 `repo:scott372199/album-mgmt:*` 的 GitHub OIDC subject。
 
 本地 Docker daemon 可用时，也可以手工执行：
 
