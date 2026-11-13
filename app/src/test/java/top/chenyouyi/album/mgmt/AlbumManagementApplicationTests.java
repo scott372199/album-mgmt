@@ -21,6 +21,16 @@ class AlbumManagementApplicationTests {
     }
 
     @Test
+    void servesReadOnlyManagementHome() throws Exception {
+        mockMvc.perform(get("/index.html"))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .contentTypeCompatibleWith("text/html"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .string(org.hamcrest.Matchers.containsString("个人相册管理平台")));
+    }
+
+    @Test
     void exposesPublicReadOnlySnapshot() throws Exception {
         mockMvc.perform(get("/api/management/snapshot"))
                 .andExpect(status().isOk())
