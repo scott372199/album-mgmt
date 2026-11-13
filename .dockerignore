@@ -1,6 +1,8 @@
 .gradle/
 .git/
-app/build/
+app/build/*
+!app/build/libs/
+!app/build/libs/*.jar
 web/node_modules/
 web/dist/
 *.iml
