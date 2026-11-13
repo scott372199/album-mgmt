@@ -44,3 +44,21 @@ h1 { margin-top: 6px; font-size: clamp(30px, 5vw, 56px); letter-spacing: -.05em;
   .fixture-row { grid-template-columns: 1fr 1fr; }
   .row-state { text-align: left; }
 }
+
+/* v5 real-API additions / 真实 API 接线新增样式 */
+.login-shell { max-width: 560px; }
+.login-card { display: grid; gap: 16px; padding: 24px; border: 1px solid #d2d2d7; border-radius: 18px; background: #fff; }
+.login-card label { display: grid; gap: 8px; font-size: 13px; color: #6e6e73; }
+.login-card input { padding: 12px 14px; border: 1px solid #d2d2d7; border-radius: 12px; font-size: 15px; color: #1d1d1f; background: #f5f5f7; }
+.login-card input:focus { outline: 2px solid #1d1d1f; outline-offset: -1px; }
+.login-card button { padding: 12px 16px; border: 0; border-radius: 999px; background: #1d1d1f; color: #fff; font-size: 14px; cursor: pointer; }
+.login-card button:disabled { opacity: .5; cursor: wait; }
+.form-error { color: #b3261e; font-size: 13px; }
+.ghost-button { padding: 8px 14px; border: 1px solid #d2d2d7; border-radius: 999px; background: transparent; color: #6e6e73; font-size: 12px; cursor: pointer; }
+.ghost-button:hover { border-color: #1d1d1f; color: #1d1d1f; }
+.topbar-side { display: flex; gap: 10px; align-items: center; }
+.meta-row { display: flex; flex-wrap: wrap; gap: 16px; margin: 14px 0; font-size: 12px; color: #6e6e73; }
+.meta-row code { font-size: 11px; background: #f5f5f7; padding: 2px 6px; border-radius: 6px; }
+.unavailable-reason { color: #9a5a16; }
+.fixture-row { grid-template-columns: 160px 1fr; }
+.empty-state.error { border-color: #b3261e55; color: #b3261e; }
