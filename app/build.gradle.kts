@@ -24,12 +24,18 @@ dependencies {
     // BouncyCastle 提供 RFC 7914 scrypt，零额外云依赖 / zero cloud dependency
     implementation("org.bouncycastle:bcprov-jdk18on:1.81")
 
-    // AWS 只读 adapter 的 SDK client 注入点；本地 profile 绝不构造真实 client、不连真实云
-    // AWS read-adapter SDK client injection point; the local profile never builds a real client
+    // AWS 只读 adapter 的 SDK client；本地 profile 绝不构造真实 client、不连真实云。
+    // cloud profile 下由 IaC 提供的只读 task role 驱动，所有调用都是 read/describe/list。
+    // AWS read-adapter SDK clients. The local profile never builds a real client;
+    // in the cloud profile a read-only task role drives list/describe/get calls only.
     implementation(platform("software.amazon.awssdk:bom:2.31.63"))
     implementation("software.amazon.awssdk:cloudfront")
     implementation("software.amazon.awssdk:ecr")
     implementation("software.amazon.awssdk:ecs")
+    implementation("software.amazon.awssdk:s3")
+    implementation("software.amazon.awssdk:cloudwatch")
+    implementation("software.amazon.awssdk:cloudwatchlogs")
+    implementation("software.amazon.awssdk:costexplorer")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

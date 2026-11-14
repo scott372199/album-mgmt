@@ -4,27 +4,24 @@ import top.chenyouyi.album.mgmt.common.ProviderResult;
 import top.chenyouyi.album.mgmt.provider.port.CloudProvider;
 
 /**
- * AWS 资源目录只读骨架 / AWS resource-inventory read-only skeleton.
- * 可注入 SDK client；骨架阶段不发起真实调用，绝不伪造数据。
+ * 真实资源清单（blocker #6）。状态只来自本次只读查询的结果：
+ * active / degraded / unknown 三选一，绝不把 ACTIVE 资源报成 planned。
+ *
+ * Real resource inventory (blocker #6). Status is derived only from this read:
+ * active, degraded or unknown; an ACTIVE resource is never reported as planned.
  */
 public class AwsCloudReadAdapter implements CloudProvider {
 
-    private final AwsSdkClients clients;
+    private final AwsReadGateway gateway;
+    private final MgmtAwsProperties props;
 
-    public AwsCloudReadAdapter(AwsSdkClients clients) {
-        this.clients = clients;
+    public AwsCloudReadAdapter(AwsReadGateway gateway, MgmtAwsProperties props) {
+        this.gateway = gateway;
+        this.props = props;
     }
 
     @Override
     public ProviderResult resources() {
-        if (!clients.available()) {
-            return ProviderResult.unavailable("AWS read SDK client not injected (local/offline profile)");
-        }
-        // 只读映射骨架 / Read-only mapping skeleton:
-        // 生产调用 ecs.listClusters / ecr.describeRepositories / cloudFront.listDistributions，
-        // 映射为契约 resourceDto，剥离完整 ARN、SSM 值与内部对象 key，绝不返回 vendor DTO。
-        // Production maps read-only SDK calls into resourceDto, stripping full ARNs,
-        // SSM values and internal object keys; no vendor DTO ever crosses the port.
-        return ProviderResult.unavailable("AwsCloudReadAdapter is a read-only skeleton; live SDK mapping disabled");
+        return AwsReadAdapterSupport.read("resources", gateway::resources, props);
     }
 }

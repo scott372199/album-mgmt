@@ -4,23 +4,25 @@ import top.chenyouyi.album.mgmt.common.ProviderResult;
 import top.chenyouyi.album.mgmt.provider.port.SecurityProvider;
 
 /**
- * AWS 安全姿态只读骨架（仅控制项状态，绝不返回 secret 值或执行 IAM 写操作）。
- * AWS security-posture read-only skeleton (control status only; never returns secret values
- * or performs IAM writes).
+ * 安全控制姿态。这些是由 IaC 边界与代码事实推导的声明，不是采集到的云指标；
+ * evidence 逐条写明依据，绝不声称来自实时探测。
+ *
+ * Security control posture. These are declarations derived from the IaC boundary
+ * and code facts, not collected cloud metrics; each evidence string names its
+ * basis and never claims a live probe.
  */
 public class AwsSecurityReadAdapter implements SecurityProvider {
 
-    private final AwsSdkClients clients;
+    private final AwsReadGateway gateway;
+    private final MgmtAwsProperties props;
 
-    public AwsSecurityReadAdapter(AwsSdkClients clients) {
-        this.clients = clients;
+    public AwsSecurityReadAdapter(AwsReadGateway gateway, MgmtAwsProperties props) {
+        this.gateway = gateway;
+        this.props = props;
     }
 
     @Override
     public ProviderResult controls() {
-        if (!clients.available()) {
-            return ProviderResult.unavailable("AWS read SDK client not injected (local/offline profile)");
-        }
-        return ProviderResult.unavailable("AwsSecurityReadAdapter is a read-only skeleton; live SDK mapping disabled");
+        return AwsReadAdapterSupport.read("security", gateway::securityControls, props);
     }
 }

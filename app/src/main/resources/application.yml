@@ -39,3 +39,29 @@ mgmt:
     # 本地默认数据源；cloud profile 才会加载 AWS/GitHub 只读骨架
     # Local default data source; the cloud profile loads AWS/GitHub read-only skeletons
     mode: ${MGMT_PROVIDER_MODE:fixture}
+  aws:
+    # cloud profile 的只读数据源参数。全是运行参数，不是密钥；
+    # 凭据一律来自 ECS task role，绝不写进配置或环境变量。
+    # Read-only data-source settings for the cloud profile. These are runtime
+    # parameters, never credentials: the ECS task role supplies credentials.
+    region: ${MGMT_AWS_REGION:ap-southeast-1}
+    # Cost Explorer / CloudFront 是全局服务，端点固定 us-east-1
+    # Cost Explorer and CloudFront are global services pinned to us-east-1
+    global-region: ${MGMT_AWS_GLOBAL_REGION:us-east-1}
+    # CI 写入的 workflow 只读快照；留空表示该域不可用，绝不伪造
+    # CI-written read-only workflow snapshot; empty means unavailable, never faked
+    snapshot-bucket: ${MGMT_SNAPSHOT_BUCKET:}
+    snapshot-key: ${MGMT_SNAPSHOT_OBJECT:cicd/workflows.json}
+    snapshot-max-age-minutes: ${MGMT_SNAPSHOT_MAX_AGE_MINUTES:180}
+    # 24 小时窗口：站点按需拉起，太短的窗口会让 Logs 域在验收时空缺
+    # A 24h window: the site is on-demand, so a shorter lookback leaves Logs empty
+    log-groups: ${MGMT_LOG_GROUPS:/aws/lambda/album-auth,/aws/lambda/album-processor,/aws/ecs/album-mgmt}
+    log-lookback-minutes: ${MGMT_LOG_LOOKBACK_MINUTES:1440}
+    metric-namespace: ${MGMT_METRIC_NAMESPACE:AWS/Lambda}
+    # CloudWatch AWS/Lambda 指标必须按 FunctionName 查询，否则拿不到真实样本
+    # CloudWatch AWS/Lambda metrics require a FunctionName dimension for real samples
+    lambda-functions: ${MGMT_LAMBDA_FUNCTIONS:album-auth,album-processor}
+    # 每个域最多返回条数 + 单次 SDK 调用超时，防止管理站拖慢或放大响应
+    # Per-domain item cap and per-call timeout keep the read-only surface bounded
+    max-items: ${MGMT_AWS_MAX_ITEMS:40}
+    timeout-millis: ${MGMT_AWS_TIMEOUT_MILLIS:4000}
