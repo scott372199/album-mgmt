@@ -29,10 +29,10 @@ independent MGMT_JWT_SECRET (random in-process when unset).*
 ## 认证与 RBAC / Auth and RBAC
 
 - 登录：`POST /api/v1/auth/login`，主体（白名单）+ scrypt 共享口令；签发 HS256 access（1h）/ refresh（7d）
-- 演示账户：`admin|admin,auditor|auditor,viewer|viewer`，共享口令 `album-mgmt-demo`（`MGMT_DEMO_ACCOUNTS` / `MGMT_DEMO_SHARED_KEY` 可覆盖）
+- 演示账户（**仅本地 fixture**）：`admin|admin,auditor|auditor,viewer|viewer`，默认共享口令 `album-mgmt-demo`（`MGMT_DEMO_ACCOUNTS` / `MGMT_DEMO_SHARED_KEY` 可覆盖）。**生产完全不同**：三把随机强值存 GitHub secret，经 `TF_VAR_*` → SSM SecureString → ECS `secret{}` 按 ARN 注入；登录页不显示任何口令，代码里也不得硬编码
 - 逐域权限：admin 七域全读；auditor 仅 `audit` + `security`；viewer 仅 `resources` + `cicd`
 - 未带令牌 401 `missing_bearer_token`；令牌无效 401 `invalid_access_token`；越权 403 `domain_permission_denied`
-- 每个六域请求都落审计事件（who 哈希 / domain / action / correlationId / outcome / durationMs）
+- 每个七域请求都落审计事件（who 哈希 / domain / action / correlationId / outcome / durationMs）
 
 *Login posts principal (allowlist) + scrypt shared key and issues HS256 access/refresh
 tokens. Demo accounts and the shared key are configurable. Permissions are per-domain
@@ -111,6 +111,27 @@ scripts/       check.mjs 离线自检
 
 *Modules communicate only through provider ports; vendor adapters never leak into
 public DTOs.*
+
+## 生产镜像与同源 UI / Production image and same-origin UI
+
+2026-11-14 补齐：此前生产镜像只 `COPY app/build/libs/*.jar`，CloudFront 只有一个
+Spring Boot origin，于是 `https://cx.chenyouyi.top/` 返回 404 —— 七域 API 都在，
+登录页与图形界面却没有部署。现在 `Dockerfile` 用两阶段构建：
+`node:22-alpine` 跑 `npm ci && vite build`，产物 `COPY --from=web` 到 `/app/static/`，
+最终镜像以 `--spring.web.resources.static-locations=file:/app/static/` 启动。
+登录页、七域 UI 与 `/api/v1/**`、`/actuator/**` 由**同一个 origin** 提供，
+无需第二个容器、无需改 CloudFront behavior；Spring 的 Controller 映射优先于静态资源。
+
+*The image used to ship only the jar, so the root path 404'd while all seven APIs
+worked. A multi-stage build now bundles the Vite console into /app/static and Spring
+serves it from the same origin as the API — no extra container or CDN behavior.*
+
+`web/nginx.conf` 只服务本地 `docker compose`（静态站 + `/api/` 反代到 `api:8080`），
+**不是生产路径**；生产不要把它当依赖。CI 在 PR 上也会跑一次 `vite build`，
+避免前端坏到合并后才暴露。
+
+*nginx.conf is for local compose only, not production. PRs also run vite build so a
+broken console cannot slip through to main.*
 
 ## 本地运行 / Run locally
 
