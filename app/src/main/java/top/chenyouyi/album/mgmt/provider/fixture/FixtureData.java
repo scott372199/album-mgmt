@@ -20,13 +20,29 @@ public final class FixtureData {
     private FixtureData() {
     }
 
-    /** 资源目录 / Resource inventory (contract resourceDto). */
+    /**
+     * 资源目录 / Resource inventory (contract resourceDto).
+     *
+     * 只读界面不允许断言它没验证过的生命周期状态。原来 ECS Express 与 cx 分发
+     * 报 `planned`（「已规划、尚未上线」），但真实资源既可能 ACTIVE / Deployed，
+     * 也可能已经销毁 —— 那是与事实相反的结论（V5 release blocker #6）。
+     * fixture 没有真实清单权限，一律报 `unknown`；生产由真实只读清单 adapter
+     * 给出 active / degraded / unknown。ECR 仓库是唯一可静态确证存在的资源。
+     *
+     * A read-only surface must not assert a lifecycle state it never verified.
+     * ECS Express and the cx distribution used to report `planned` ("planned,
+     * not yet live") while the real resources may be ACTIVE / Deployed or already
+     * destroyed — the opposite of reality (V5 blocker #6). Fixtures hold no
+     * inventory permission, so they report `unknown`; production resolves
+     * active / degraded / unknown through the real read-only adapter. The ECR
+     * repository is the only resource whose existence is statically verifiable.
+     */
     public static List<Map<String, Object>> resources() {
         return List.of(
                 resource("aws", "demo-account", "ap-southeast-1", "ecs-express",
-                        "mgmt-ecs-express", "planned"),
+                        "mgmt-ecs-express", "unknown"),
                 resource("aws", "demo-account", "global", "cloudfront",
-                        "mgmt-cx-distribution", "planned"),
+                        "mgmt-cx-distribution", "unknown"),
                 resource("aws", "demo-account", "ap-southeast-1", "ecr",
                         "album-mgmt", "active"));
     }
