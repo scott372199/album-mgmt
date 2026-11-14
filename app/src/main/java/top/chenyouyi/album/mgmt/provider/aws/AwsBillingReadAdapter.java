@@ -3,22 +3,24 @@ package top.chenyouyi.album.mgmt.provider.aws;
 import top.chenyouyi.album.mgmt.common.ProviderResult;
 import top.chenyouyi.album.mgmt.provider.port.BillingProvider;
 
-/** AWS 账单只读骨架 / AWS billing read-only skeleton (Cost Explorer). */
+/**
+ * 真实账单读取：Cost Explorer 当月至今的 UnblendedCost，如实保留币种。
+ *
+ * Real billing read: month-to-date UnblendedCost from Cost Explorer, keeping the
+ * currency exactly as reported rather than pretending it is a different one.
+ */
 public class AwsBillingReadAdapter implements BillingProvider {
 
-    private final AwsSdkClients clients;
+    private final AwsReadGateway gateway;
+    private final MgmtAwsProperties props;
 
-    public AwsBillingReadAdapter(AwsSdkClients clients) {
-        this.clients = clients;
+    public AwsBillingReadAdapter(AwsReadGateway gateway, MgmtAwsProperties props) {
+        this.gateway = gateway;
+        this.props = props;
     }
 
     @Override
     public ProviderResult records() {
-        if (!clients.available()) {
-            return ProviderResult.unavailable("AWS read SDK client not injected (local/offline profile)");
-        }
-        // 只读骨架：生产调用 Cost Explorer GetCostAndUsage，映射为 provider-neutral billing 记录。
-        // Read-only skeleton: production maps GetCostAndUsage into provider-neutral billing records.
-        return ProviderResult.unavailable("AwsBillingReadAdapter is a read-only skeleton; live SDK mapping disabled");
+        return AwsReadAdapterSupport.read("billing", gateway::billing, props);
     }
 }

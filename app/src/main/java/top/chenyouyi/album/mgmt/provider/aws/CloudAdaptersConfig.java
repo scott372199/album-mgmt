@@ -1,10 +1,22 @@
 package top.chenyouyi.album.mgmt.provider.aws;
 
+import java.time.Duration;
+
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import top.chenyouyi.album.mgmt.provider.github.GitHubActionsReadAdapter;
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
+import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient;
+import software.amazon.awssdk.services.costexplorer.CostExplorerClient;
+import software.amazon.awssdk.services.ecr.EcrClient;
+import software.amazon.awssdk.services.ecs.EcsClient;
+import software.amazon.awssdk.services.s3.S3Client;
+
 import top.chenyouyi.album.mgmt.provider.port.AlertProvider;
 import top.chenyouyi.album.mgmt.provider.port.BillingProvider;
 import top.chenyouyi.album.mgmt.provider.port.CicdProvider;
@@ -15,60 +27,84 @@ import top.chenyouyi.album.mgmt.provider.port.SecurityProvider;
 import top.chenyouyi.album.mgmt.provider.port.TraceProvider;
 
 /**
- * cloud profile 下的 provider 绑定（仅在显式启用 SPRING_PROFILES_ACTIVE=cloud 时加载）。
- * AWS SDK client 注入点默认为 null：本地不构造真实 client、不连真实云；
- * 生产由 IaC 提供带只读 task role 的 AwsSdkClients @Bean 替换本默认 bean。
+ * cloud profile 的真实只读绑定（SPRING_PROFILES_ACTIVE=cloud）。
+ * SDK client 使用默认凭据链，凭据由 ECS 只读 task role 提供；容器里没有长期密钥。
+ * 每次调用都有超时上限，失败由 adapter 明确降级为 unavailable，绝不伪造数据。
  *
- * Provider bindings for the cloud profile (loaded only with SPRING_PROFILES_ACTIVE=cloud).
- * The AWS SDK client injection point defaults to null: no real client, no cloud call locally.
- * Production replaces the default AwsSdkClients bean with one carrying a read-only task role.
+ * Real read-only bindings for the cloud profile. SDK clients use the default
+ * credentials chain backed by the ECS read-only task role, so no long-lived key
+ * lives in the container. Every call has a timeout; failures degrade honestly to
+ * unavailable and never produce fake data.
+ *
+ * 身份与审计仍用进程内实现：它们是本服务自己的状态，不是外部运维数据源。
+ * Identity and audit stay in-process: they are this service's own state, not an
+ * external operational data source.
  */
 @Configuration
 @Profile("cloud")
+@EnableConfigurationProperties(MgmtAwsProperties.class)
 public class CloudAdaptersConfig {
 
     @Bean
-    AwsSdkClients awsSdkClients() {
-        return new AwsSdkClients(null, null, null); // 本地骨架不注入真实 client / no real client locally
+    AwsSdkClients awsSdkClients(MgmtAwsProperties props) {
+        Region region = Region.of(props.getRegion());
+        Region global = Region.of(props.getGlobalRegion());
+        ClientOverrideConfiguration override = ClientOverrideConfiguration.builder()
+                .apiCallTimeout(Duration.ofMillis(props.boundedTimeoutMillis()))
+                .apiCallAttemptTimeout(Duration.ofMillis(props.boundedTimeoutMillis()))
+                .build();
+        return new AwsSdkClients(
+                EcsClient.builder().region(region).overrideConfiguration(override).build(),
+                EcrClient.builder().region(region).overrideConfiguration(override).build(),
+                CloudFrontClient.builder().region(global).overrideConfiguration(override).build(),
+                CloudWatchLogsClient.builder().region(region).overrideConfiguration(override).build(),
+                CloudWatchClient.builder().region(region).overrideConfiguration(override).build(),
+                CostExplorerClient.builder().region(global).overrideConfiguration(override).build(),
+                S3Client.builder().region(region).overrideConfiguration(override).build());
     }
 
     @Bean
-    CloudProvider cloudProvider(AwsSdkClients clients) {
-        return new AwsCloudReadAdapter(clients);
+    AwsReadGateway awsReadGateway(AwsSdkClients clients, MgmtAwsProperties props) {
+        return new SdkAwsReadGateway(clients, props);
     }
 
     @Bean
-    CicdProvider cicdProvider() {
-        return new GitHubActionsReadAdapter(null, null);
+    CloudProvider cloudProvider(AwsReadGateway gateway, MgmtAwsProperties props) {
+        return new AwsCloudReadAdapter(gateway, props);
     }
 
     @Bean
-    LogProvider logProvider(AwsSdkClients clients) {
-        return new AwsObservabilityReadAdapter(clients);
+    CicdProvider cicdProvider(AwsReadGateway gateway, MgmtAwsProperties props) {
+        return new WorkflowSnapshotReadAdapter(gateway, props);
     }
 
     @Bean
-    MetricProvider metricProvider(AwsSdkClients clients) {
-        return new AwsObservabilityReadAdapter(clients);
+    LogProvider logProvider(AwsReadGateway gateway, MgmtAwsProperties props) {
+        return new AwsObservabilityReadAdapter(gateway, props);
     }
 
     @Bean
-    TraceProvider traceProvider(AwsSdkClients clients) {
-        return new AwsObservabilityReadAdapter(clients);
+    MetricProvider metricProvider(AwsReadGateway gateway, MgmtAwsProperties props) {
+        return new AwsObservabilityReadAdapter(gateway, props);
     }
 
     @Bean
-    AlertProvider alertProvider(AwsSdkClients clients) {
-        return new AwsObservabilityReadAdapter(clients);
+    TraceProvider traceProvider(AwsReadGateway gateway, MgmtAwsProperties props) {
+        return new AwsObservabilityReadAdapter(gateway, props);
     }
 
     @Bean
-    BillingProvider billingProvider(AwsSdkClients clients) {
-        return new AwsBillingReadAdapter(clients);
+    AlertProvider alertProvider(AwsReadGateway gateway, MgmtAwsProperties props) {
+        return new AwsObservabilityReadAdapter(gateway, props);
     }
 
     @Bean
-    SecurityProvider securityProvider(AwsSdkClients clients) {
-        return new AwsSecurityReadAdapter(clients);
+    BillingProvider billingProvider(AwsReadGateway gateway, MgmtAwsProperties props) {
+        return new AwsBillingReadAdapter(gateway, props);
+    }
+
+    @Bean
+    SecurityProvider securityProvider(AwsReadGateway gateway, MgmtAwsProperties props) {
+        return new AwsSecurityReadAdapter(gateway, props);
     }
 }

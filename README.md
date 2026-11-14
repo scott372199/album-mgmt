@@ -1,11 +1,13 @@
 # album-mgmt · 相册管理平台 / Album management platform
 
 V5 重建后的管理平台（Java 21 + Spring Boot 只读 API + React/Vite 管理界面）。
-本地默认跑 fixture 数据，零云依赖即可启动；接真实云只换 provider 实现，不动公共 DTO。
+本地默认跑 fixture 数据，零云依赖即可启动；`SPRING_PROFILES_ACTIVE=cloud` 时六个域
+改读真实 AWS 只读数据源，只换 provider 实现，不动公共 DTO。
 
 *The V5-rebuilt management platform: read-only API on Java 21 / Spring Boot plus a
 React/Vite console. Locally it runs on fixture data with zero cloud dependencies;
-switching to real clouds only swaps provider implementations, never the public DTOs.*
+with `SPRING_PROFILES_ACTIVE=cloud` the six domains read real AWS read-only data
+sources. Only provider implementations swap, never the public DTOs.*
 
 ## 契约与边界 / Contract and boundary
 
@@ -39,23 +41,52 @@ tokens are 401, cross-domain reads are 403, and every domain read is audited.*
 
 ## API 一览 / API surface
 
-| 端点 / Endpoint | 域 / Domain | 本地 fixture / Local fixture |
-| --- | --- | --- |
-| `GET /api/v1/cicd/workflows` | CI/CD | fixture |
-| `GET /api/v1/resources` | Resources | fixture |
-| `GET /api/v1/logs` | Logs | unavailable（Loki adapter 未接） |
-| `GET /api/v1/metrics` | Metrics | fixture |
-| `GET /api/v1/security` | Security | fixture |
-| `GET /api/v1/billing` | Billing | unavailable（Cost Explorer adapter 未接） |
-| `GET /api/v1/audit` | Audit | 真实请求事件 + 种子 / real events + seeds |
-| `GET /api/v1/health` | 公开 / public | ok |
-| `POST /api/v1/auth/login\|refresh\|logout` | 公开 / public | 演示账户 |
+| 端点 / Endpoint | 域 / Domain | 本地 fixture / Local fixture | cloud 真实源 / Real cloud source |
+| --- | --- | --- | --- |
+| `GET /api/v1/cicd/workflows` | CI/CD | fixture | S3 只读快照（CI 写入，不直连 GitHub）/ S3 read-only snapshot written by CI |
+| `GET /api/v1/resources` | Resources | fixture | ECS / ECR / CloudFront 只读清单 / read-only inventory |
+| `GET /api/v1/logs` | Logs | unavailable（Loki adapter 未接） | CloudWatch Logs 结构化事件 / structured events only |
+| `GET /api/v1/metrics` | Metrics | fixture | CloudWatch GetMetricData |
+| `GET /api/v1/security` | Security | fixture | IaC 边界声明 / IaC boundary declarations |
+| `GET /api/v1/billing` | Billing | unavailable（Cost Explorer adapter 未接） | Cost Explorer 当月至今 / month-to-date |
+| `GET /api/v1/audit` | Audit | 真实请求事件 + 种子 / real events + seeds | 同左（本服务自身状态）/ same (own state) |
+| `GET /api/v1/health` | 公开 / public | ok | ok |
+| `POST /api/v1/auth/login\|refresh\|logout` | 公开 / public | 演示账户 | 演示账户 |
 
 统一信封：`{items, source, asOf, correlationId, unavailable}`；客户端传合法
 `X-Correlation-Id`（`corr_[0-9a-f]{16}`）则透传，否则服务端生成并在响应头回显。
 
 *Common envelope {items, source, asOf, correlationId, unavailable}. A format-valid
 X-Correlation-Id is propagated; otherwise the server generates and echoes one.*
+
+### cloud profile / 真实只读模式
+
+`SPRING_PROFILES_ACTIVE=cloud` 时，凭据由 ECS 只读 task role 短期下发，容器里
+没有长期密钥。配置全部是运行参数（无密钥）：`MGMT_AWS_REGION`、
+`MGMT_AWS_GLOBAL_REGION`（Cost Explorer / CloudFront 固定 us-east-1）、
+`MGMT_SNAPSHOT_BUCKET`、`MGMT_SNAPSHOT_OBJECT`、`MGMT_SNAPSHOT_MAX_AGE_MINUTES`、
+`MGMT_LOG_GROUPS`、`MGMT_LOG_LOOKBACK_MINUTES`（默认 1440 分钟 / 24 小时）、
+`MGMT_METRIC_NAMESPACE`、`MGMT_LAMBDA_FUNCTIONS`、`MGMT_AWS_MAX_ITEMS`、
+`MGMT_AWS_TIMEOUT_MILLIS`。
+
+Metrics 域按 `MGMT_LAMBDA_FUNCTIONS` 逐函数带 `FunctionName` dimension 查询
+`AWS/Lambda` 的 Invocations / Errors / Duration；CloudWatch 没返回样本就诚实降级，
+不会把空样本包装成"真实的 0"。日志窗口覆盖 24 小时，避免按需拉起时 Logs 域空白。
+
+每个域都有条数上限与调用超时；上游失败只返回 `source=unavailable` + 可公开原因，
+绝不伪造数据，也绝不把上游异常文本带进响应。日志域只放行结构化日志的契约字段，
+原始文本行不会出站；响应在序列化前还会再经 `ForbiddenFields` 递归脱敏。
+
+*With `SPRING_PROFILES_ACTIVE=cloud`, an ECS read-only task role supplies short-lived
+credentials; no long-lived key lives in the container. All settings are runtime
+parameters, not secrets. The metrics domain queries AWS/Lambda Invocations, Errors
+and Duration per function in `MGMT_LAMBDA_FUNCTIONS` with a `FunctionName` dimension;
+empty samples degrade honestly instead of being reported as a real zero, and the
+log lookback defaults to 24 hours so Logs is not blank on an on-demand site. Every
+domain is capped and time-boxed; upstream failures degrade to `source=unavailable`
+with a publishable reason and never fabricate data or echo exception text. The logs
+domain exposes only whitelisted structured fields, and responses are recursively
+redacted once more before serialization.*
 
 ## 目录约定 / Layout convention
 
@@ -67,10 +98,10 @@ app/src/main/java/top/chenyouyi/album/mgmt/
   provider/
     port/      10 个 provider 中立接口 / 10 provider-neutral ports
     fixture/   本地演示数据（默认 profile）
-    aws/       AWS 只读 adapter（cloud profile）
-    github/    GitHub Actions 只读 adapter
+    aws/       真实只读 adapter + SDK 网关（cloud profile）
+    github/    GitHub Actions 骨架（cloud profile 不使用，改读 S3 快照）
   web/         七域只读 Controller + HealthController + 出站过滤 Advice
-app/src/test/  28 项测试（JWT、RBAC、审计、过滤、端到端安全矩阵）
+app/src/test/  53 项测试（JWT、RBAC、审计、过滤、端到端安全矩阵、cloud adapter、快照解析）
 web/           React 控制台（登录 + 七域信封渲染 + 降级展示）+ nginx.conf
 scripts/       check.mjs 离线自检
 ```
@@ -103,7 +134,7 @@ over application.yml; always pass --server.port explicitly for local runs.*
 
 ```bash
 node scripts/check.mjs        # 敏感样例 / 绝对路径 / 域名混用 / 生产写标记
-./gradlew test                # 28 项测试
+./gradlew test                # 53 项测试 / 53 tests
 ./gradlew :app:bootJar
 npm run web:build
 ```

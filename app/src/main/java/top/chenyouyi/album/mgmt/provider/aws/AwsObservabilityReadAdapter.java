@@ -7,45 +7,39 @@ import top.chenyouyi.album.mgmt.provider.port.MetricProvider;
 import top.chenyouyi.album.mgmt.provider.port.TraceProvider;
 
 /**
- * AWS 日志/指标/链路/告警只读骨架（LogProvider/MetricProvider/TraceProvider/AlertProvider）。
- * 仅占位：不可用时明确返回 source=unavailable，绝不伪造。
+ * 真实日志与指标读取。traces / alerts 目前没有接真实数据源，也不存在对应
+ * HTTP 出口；明确返回 unavailable，绝不伪造。
  *
- * AWS logs/metrics/traces/alerts read-only skeleton. Placeholder only: returns
- * source=unavailable with a reason and never fakes data.
+ * Real logs and metrics reads. Traces and alerts have no real data source yet and
+ * no HTTP endpoint; they explicitly report unavailable instead of faking data.
  */
 public class AwsObservabilityReadAdapter implements LogProvider, MetricProvider, TraceProvider, AlertProvider {
 
-    private final AwsSdkClients clients;
+    private final AwsReadGateway gateway;
+    private final MgmtAwsProperties props;
 
-    public AwsObservabilityReadAdapter(AwsSdkClients clients) {
-        this.clients = clients;
+    public AwsObservabilityReadAdapter(AwsReadGateway gateway, MgmtAwsProperties props) {
+        this.gateway = gateway;
+        this.props = props;
     }
 
     @Override
     public ProviderResult events() {
-        return skeleton("logs");
+        return AwsReadAdapterSupport.read("logs", gateway::logs, props);
     }
 
     @Override
     public ProviderResult series() {
-        return skeleton("metrics");
+        return AwsReadAdapterSupport.read("metrics", gateway::metrics, props);
     }
 
     @Override
     public ProviderResult traces() {
-        return skeleton("traces");
+        return ProviderResult.unavailable("no trace backend connected (read-only surface)");
     }
 
     @Override
     public ProviderResult alerts() {
-        return skeleton("alerts");
-    }
-
-    private ProviderResult skeleton(String domain) {
-        if (!clients.available()) {
-            return ProviderResult.unavailable("AWS read SDK client not injected (local/offline profile)");
-        }
-        return ProviderResult.unavailable(
-                "Aws*ReadAdapter " + domain + " is a read-only skeleton; live SDK mapping disabled");
+        return ProviderResult.unavailable("no alert backend connected (read-only surface)");
     }
 }
