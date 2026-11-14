@@ -52,7 +52,18 @@ jobs:
       - name: Test and package
         run: ./gradlew clean test :app:bootJar
 
+      # PR 只跑到「Test and package」为止。publish 角色的信任策略是
+      # `repo:scott372199/album-mgmt:*`（连 refs/pull/*/merge 都认），所以不挡的话
+      # 每个 PR 都会往生产 ECR 推一个不可变镜像 —— 既不必要，也让 ECR 里堆满
+      # 从未被任何环境引用过的 tag。album 仓库早已用同一条门控修过这个问题。
+      # 注意：job 本身保留，PR 的 required check 名字才不会变。
+      #
+      # PRs stop at "Test and package". The publish role trusts
+      # `repo:scott372199/album-mgmt:*` (including refs/pull/*/merge), so without
+      # this guard every PR pushes an immutable image into the production ECR.
+      # The job itself stays so the PR required-check name does not change.
       - name: Validate AWS publish role configuration
+        if: github.event_name != 'pull_request'
         env:
           AWS_IMAGE_PUBLISH_ROLE_ARN: ${{ vars.AWS_IMAGE_PUBLISH_ROLE_ARN || secrets.AWS_IMAGE_PUBLISH_ROLE_ARN }}
         run: |
@@ -63,6 +74,7 @@ jobs:
           fi
 
       - name: Configure AWS credentials via OIDC
+        if: github.event_name != 'pull_request'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_IMAGE_PUBLISH_ROLE_ARN || secrets.AWS_IMAGE_PUBLISH_ROLE_ARN }}
@@ -70,12 +82,15 @@ jobs:
           role-session-name: album-mgmt-image-${{ github.run_id }}
 
       - name: Login to Amazon ECR
+        if: github.event_name != 'pull_request'
         id: ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - uses: docker/setup-buildx-action@v3
+        if: github.event_name != 'pull_request'
 
       - name: Build and push linux/amd64 image
+        if: github.event_name != 'pull_request'
         id: build
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
@@ -102,6 +117,7 @@ jobs:
           printf '%s\n' "$image_uri" > management-image-uri.txt
 
       - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
         with:
           name: management-image-uri-${{ github.sha }}
           path: management-image-uri.txt
