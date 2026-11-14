@@ -89,8 +89,12 @@ function LoginScreen({ onLogin, error, busy }) {
       </header>
       <section className="intro">
         <p className="kicker">SIGN IN</p>
-        <h2>登录后查看六域只读数据。</h2>
-        <p>本地演示账户：admin / auditor / viewer，共享口令 album-mgmt-demo；令牌只存在本会话。</p>
+        <h2>登录后查看七域只读数据。</h2>
+        {/* 生产口令由 GitHub secret → SSM SecureString → ECS secret 注入，绝不写进前端。
+            The production shared key is injected via GitHub secret → SSM → ECS secret;
+            never hard-code any credential (including the retired demo key) in the UI. */}
+        <p>使用管理员提供的共享口令登录；令牌只存在本会话，服务端不保存长期凭据。
+          / Use the shared key provided by the administrator; the token lives only in this session.</p>
       </section>
       <form className="login-card" onSubmit={submit}>
         <label>
@@ -109,7 +113,7 @@ function LoginScreen({ onLogin, error, busy }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             type="password"
-            placeholder="album-mgmt-demo"
+            placeholder="输入共享口令 / shared key"
             autoComplete="current-password"
             required
           />

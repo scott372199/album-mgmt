@@ -6,6 +6,7 @@ on:
     paths:
       - "Dockerfile"
       - ".dockerignore"
+      - "web/**"
       - "app/**"
       - "gradle/**"
       - "gradlew"
@@ -19,6 +20,7 @@ on:
     paths:
       - "Dockerfile"
       - ".dockerignore"
+      - "web/**"
       - "app/**"
       - "gradle/**"
       - "gradlew"
@@ -52,7 +54,18 @@ jobs:
       - name: Test and package
         run: ./gradlew clean test :app:bootJar
 
-      # PR 只跑到「Test and package」为止。publish 角色的信任策略是
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # PR 也必须验证前端能构建：Dockerfile 的 web 阶段只在 push 镜像时执行，
+      # 若 PR 上不先跑一次 vite build，前端坏了要等合并到 main 才暴露。
+      # PRs must build the console too: the Dockerfile web stage only runs when
+      # pushing the image, so a broken frontend would surface only after merge.
+      - name: Build web console / 构建前端控制台
+        run: npm --prefix web ci --no-audit --no-fund && npm --prefix web run build
+
+      # PR 只跑到测试与构建为止，不推镜像。publish 角色的信任策略是
       # `repo:scott372199/album-mgmt:*`（连 refs/pull/*/merge 都认），所以不挡的话
       # 每个 PR 都会往生产 ECR 推一个不可变镜像 —— 既不必要，也让 ECR 里堆满
       # 从未被任何环境引用过的 tag。album 仓库早已用同一条门控修过这个问题。
