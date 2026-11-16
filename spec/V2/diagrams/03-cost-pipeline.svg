@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 820" width="1240" height="820" font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <marker id="a3" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="#8A9A86"/>
+    </marker>
+  </defs>
+  <rect width="1240" height="820" fill="#FAF9F7"/>
+
+  <text x="40" y="44" font-size="21" font-weight="600" fill="#2E3134">FinOps · 账单数据流</text>
+  <text x="40" y="68" font-size="12" fill="#8A9095">账单管道未建 → 必须分阶段推进：先「能看」，再「看得准」，最后「能优化」</text>
+
+  <!-- ============ 左侧流程 ============ -->
+  <!-- step 1 -->
+  <circle cx="52" cy="142" r="13" fill="#EDF1F4" stroke="#C3CFDA"/>
+  <text x="52" y="147" font-size="11" font-weight="600" fill="#43536B" text-anchor="middle">1</text>
+  <rect x="78" y="108" width="546" height="70" rx="9" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="94" y="130" font-size="12.5" font-weight="600" fill="#3A3E42">云厂商账单源</text>
+  <rect x="94" y="140" width="164" height="26" rx="5" fill="#EDF1F4" stroke="#C3CFDA"/>
+  <text x="176" y="158" font-size="10.5" fill="#43536B" text-anchor="middle">AWS · Cost Explorer / CUR 2.0</text>
+  <rect x="268" y="140" width="164" height="26" rx="5" fill="#EDF1F4" stroke="#C3CFDA"/>
+  <text x="350" y="158" font-size="10.5" fill="#43536B" text-anchor="middle">GCP · BigQuery Billing Export</text>
+  <rect x="442" y="140" width="166" height="26" rx="5" fill="#EDF1F4" stroke="#C3CFDA"/>
+  <text x="525" y="158" font-size="10.5" fill="#43536B" text-anchor="middle">Azure · Cost Details Export</text>
+
+  <line x1="351" y1="178" x2="351" y2="194" stroke="#8A9A86" stroke-width="1.6" marker-end="url(#a3)"/>
+
+  <!-- step 2 -->
+  <circle cx="52" cy="230" r="13" fill="#F5F0EA" stroke="#DCCFBE"/>
+  <text x="52" y="235" font-size="11" font-weight="600" fill="#6E5B49" text-anchor="middle">2</text>
+  <rect x="78" y="196" width="546" height="70" rx="9" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="94" y="218" font-size="12.5" font-weight="600" fill="#3A3E42">原始落地 · 对象存储上的 Parquet</text>
+  <text x="94" y="238" font-size="10.8" fill="#7A8085">s3://finops-cur/cur2/billing-period=YYYY-MM/*.parquet · GCS · Azure Blob</text>
+  <text x="94" y="255" font-size="10.8" fill="#A9A49C">保留原始文件 = 可重算 · 可审计 · 不受平台代码变更影响</text>
+
+  <line x1="351" y1="266" x2="351" y2="282" stroke="#8A9A86" stroke-width="1.6" marker-end="url(#a3)"/>
+
+  <!-- step 3 -->
+  <circle cx="52" cy="318" r="13" fill="#EEF2ED" stroke="#C6D2C2"/>
+  <text x="52" y="323" font-size="11" font-weight="600" fill="#4E6349" text-anchor="middle">3</text>
+  <rect x="78" y="284" width="546" height="70" rx="9" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="94" y="306" font-size="12.5" font-weight="600" fill="#3A3E42">嵌入式 DuckDB · 归一为 FOCUS 1.x 字段子集</text>
+  <text x="94" y="326" font-size="10.8" fill="#7A8085">read_parquet() 直接扫 S3 → 字段映射 / 币种换算 / charge_category 归类</text>
+  <text x="94" y="343" font-size="10.8" fill="#A9A49C">零查询服务、零额外费用、秒级扫描；ShedLock 保证单实例执行</text>
+
+  <line x1="351" y1="354" x2="351" y2="370" stroke="#8A9A86" stroke-width="1.6" marker-end="url(#a3)"/>
+
+  <!-- step 4 -->
+  <circle cx="52" cy="406" r="13" fill="#EEF2ED" stroke="#C6D2C2"/>
+  <text x="52" y="411" font-size="11" font-weight="600" fill="#4E6349" text-anchor="middle">4</text>
+  <rect x="78" y="372" width="546" height="70" rx="9" fill="#EEF2ED" stroke="#C6D2C2"/>
+  <text x="94" y="394" font-size="12.5" font-weight="600" fill="#3E5239">cost_fact · PostgreSQL 分区表</text>
+  <text x="94" y="414" font-size="10.8" fill="#5F7359">PARTITION BY RANGE (usage_date) · 唯一键幂等 UPSERT · 重跑不产生重复行</text>
+  <text x="94" y="431" font-size="10.8" fill="#7E8F78">按 (usage_date, provider, sub_account, resource_id, sku_id, charge_category) 去重</text>
+
+  <line x1="351" y1="442" x2="351" y2="458" stroke="#8A9A86" stroke-width="1.6" marker-end="url(#a3)"/>
+
+  <!-- step 5 -->
+  <circle cx="52" cy="502" r="13" fill="#F7EDEA" stroke="#E3C7BE"/>
+  <text x="52" y="507" font-size="11" font-weight="600" fill="#8A5C4E" text-anchor="middle">5</text>
+  <rect x="78" y="460" width="546" height="84" rx="9" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="94" y="482" font-size="12.5" font-weight="600" fill="#3A3E42">归因链 + 共享成本分摊</text>
+  <text x="94" y="502" font-size="10.8" fill="#7A8085">① 资源标签 cost-center / project / env　② tf_address 反查代码库　③ 账号默认成本中心　④ UNTAGGED 池</text>
+  <text x="94" y="519" font-size="10.8" fill="#7A8085">分摊：S3 按占用字节 · CloudFront 按 origin 请求比 · NAT 按出流量 · Support 按 direct cost</text>
+  <text x="94" y="536" font-size="10.5" fill="#C08B7D">规则版本化：历史月份重算不篡改旧结果，rule_version 可回溯</text>
+
+  <line x1="351" y1="544" x2="351" y2="560" stroke="#8A9A86" stroke-width="1.6" marker-end="url(#a3)"/>
+
+  <!-- step 6 -->
+  <circle cx="52" cy="604" r="13" fill="#F2F0F4" stroke="#D2CCD8"/>
+  <text x="52" y="609" font-size="11" font-weight="600" fill="#5B5468" text-anchor="middle">6</text>
+  <rect x="78" y="562" width="546" height="84" rx="9" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="94" y="584" font-size="12.5" font-weight="600" fill="#3A3E42">三口径输出 · 预算 · 异常 · 优化建议</text>
+  <rect x="94" y="594" width="160" height="24" rx="4" fill="#EDF1F4"/>
+  <text x="174" y="610" font-size="10.2" fill="#43536B" text-anchor="middle">Billed 现金流</text>
+  <rect x="262" y="594" width="160" height="24" rx="4" fill="#EEF2ED"/>
+  <text x="342" y="610" font-size="10.2" fill="#4E6349" text-anchor="middle">Amortized 摊销（默认）</text>
+  <rect x="430" y="594" width="160" height="24" rx="4" fill="#F5F0EA"/>
+  <text x="510" y="610" font-size="10.2" fill="#6E5B49" text-anchor="middle">Allocated 分摊后</text>
+  <text x="94" y="636" font-size="10.5" fill="#7A8085">预算阈值 50/80/100/120% → 飞书卡片；异常 = 30 日 MAD Z-score 与绝对增量双条件</text>
+
+  <!-- ============ 右侧说明 ============ -->
+  <!-- 阶段路线 -->
+  <rect x="660" y="108" width="540" height="192" rx="10" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="678" y="132" font-size="12.5" font-weight="600" fill="#3A3E42">分阶段路线（不要一上来就做 CUR）</text>
+
+  <rect x="678" y="144" width="504" height="44" rx="6" fill="#F4F3F0"/>
+  <text x="690" y="162" font-size="10.8" font-weight="600" fill="#43536B">S0 · 第 1–3 周 · Cost Explorer API</text>
+  <text x="690" y="179" font-size="10.3" fill="#7A8085">服务/账号级 · 回填 13 个月 · 无 resource 级 · 24h 延迟 · 先把看板立起来</text>
+
+  <rect x="678" y="194" width="504" height="44" rx="6" fill="#EEF2ED" stroke="#C6D2C2"/>
+  <text x="690" y="212" font-size="10.8" font-weight="600" fill="#3E5239">S1 · 第 5–8 周 · CUR 2.0 Parquet（关键跃迁）</text>
+  <text x="690" y="229" font-size="10.3" fill="#5F7359">resource 级 + 全量 cost allocation tags · 与 S0 双源对账差异 &lt; 1% 才切换</text>
+
+  <rect x="678" y="244" width="504" height="44" rx="6" fill="#F5F0EA" stroke="#DCCFBE"/>
+  <text x="690" y="262" font-size="10.8" font-weight="600" fill="#6E5B49">S2 · 第 10–16 周 · 利用率与优化</text>
+  <text x="690" y="279" font-size="10.3" fill="#8A7052">Compute Optimizer / CloudWatch → 闲置识别 · rightsizing · RI-SP 覆盖与到期</text>
+
+  <!-- 三口径 -->
+  <rect x="660" y="320" width="540" height="150" rx="10" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="678" y="344" font-size="12.5" font-weight="600" fill="#3A3E42">为什么口径必须分成三个</text>
+  <text x="678" y="366" font-size="10.6" fill="#7A8085">一个数字对不上财务，整个平台的可信度就没了。</text>
+  <line x1="678" y1="380" x2="1182" y2="380" stroke="#F0EEE9"/>
+  <text x="678" y="398" font-size="10.6" fill="#43536B" font-weight="600">Billed</text>
+  <text x="740" y="398" font-size="10.4" fill="#7A8085">当期开票金额 · 财务付款与对账用</text>
+  <text x="678" y="420" font-size="10.6" fill="#3E5239" font-weight="600">Amortized</text>
+  <text x="740" y="420" font-size="10.4" fill="#7A8085">RI/SP 预付摊销 · 反映真实消耗 · 看板默认口径</text>
+  <text x="678" y="442" font-size="10.6" fill="#6E5B49" font-weight="600">Allocated</text>
+  <text x="740" y="442" font-size="10.4" fill="#7A8085">再分摊共享成本 · 内部结算与项目 ROI</text>
+  <rect x="678" y="452" width="504" height="1" fill="#F0EEE9"/>
+  <text x="678" y="466" font-size="10.3" fill="#C08B7D">UI 规范：右上角常驻「数据截止 · 口径 · 汇率」，切换后全部数字联动</text>
+
+  <!-- 选型取舍 -->
+  <rect x="660" y="490" width="540" height="150" rx="10" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="678" y="514" font-size="12.5" font-weight="600" fill="#3A3E42">为什么是 DuckDB 而不是 Athena / Spark</text>
+  <text x="678" y="536" font-size="10.6" fill="#7A8085">日增量十万行量级，单机扫 Parquet 秒级完成。引入 Athena 意味着：</text>
+  <circle cx="686" cy="554" r="2.6" fill="#C08B7D"/>
+  <text x="698" y="558" font-size="10.4" fill="#7A8085">多一套查询服务 + 元数据 + 权限模型要运维</text>
+  <circle cx="686" cy="576" r="2.6" fill="#C08B7D"/>
+  <text x="698" y="580" font-size="10.4" fill="#7A8085">按扫描量计费，且账单重算时会重复产生费用</text>
+  <circle cx="686" cy="598" r="2.6" fill="#C08B7D"/>
+  <text x="698" y="602" font-size="10.4" fill="#7A8085">跨服务联调成本远高于收益（账单 ETL 本就是单实例定时任务）</text>
+  <text x="678" y="628" font-size="10.4" fill="#4E6349">触发重评条件：日账单行数 &gt; 1000 万 → 换 BillSource 实现即可，架构不变</text>
+
+  <!-- 风险提示 -->
+  <rect x="660" y="660" width="540" height="96" rx="10" fill="#FBF8F4" stroke="#E4D8C9"/>
+  <text x="678" y="684" font-size="12" font-weight="600" fill="#8A7052">最容易被忽略的一条</text>
+  <text x="678" y="706" font-size="10.6" fill="#8A7358">标签不统一，归因就是错的。cost-center 的合法值必须来自财务系统枚举表，</text>
+  <text x="678" y="724" font-size="10.6" fill="#8A7358">不能让人自由填字符串 —— proj-a / ProjA / project-a 会让分摊彻底失效。</text>
+  <text x="678" y="744" font-size="10.6" fill="#C08B7D">KPI：未打标成本占比 &lt; 5%，达不到这条线分摊结果就没人认。</text>
+
+  <!-- 底部注 -->
+  <text x="40" y="678" font-size="11" fill="#A9A49C">数据新鲜度是这类平台最重要的健康指标。</text>
+  <text x="40" y="696" font-size="11" fill="#A9A49C">陈旧 3 天的 FinOps 看板，比没有看板更危险 —— 会有人拿它去做决策。</text>
+</svg>

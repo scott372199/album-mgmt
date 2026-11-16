@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 830" width="1240" height="830" font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <marker id="a1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 z" fill="#A9A49C"/>
+    </marker>
+    <marker id="a2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 z" fill="#8A9A86"/>
+    </marker>
+  </defs>
+  <rect width="1240" height="830" fill="#FAF9F7"/>
+
+  <text x="40" y="44" font-size="21" font-weight="600" fill="#2E3134">Spring Modulith · 模块边界与事件契约</text>
+  <text x="40" y="68" font-size="12" fill="#8A9095">同步调用只允许「上层读下层 spi」；跨模块连锁反应一律走持久化领域事件</text>
+
+  <!-- ============ web ============ -->
+  <rect x="200" y="96" width="340" height="50" rx="9" fill="#FFFFFF" stroke="#A9B4C0" stroke-width="1.4"/>
+  <text x="370" y="118" font-size="13" font-weight="600" fill="#3A4653" text-anchor="middle">web</text>
+  <text x="370" y="135" font-size="10.5" fill="#6B7F94" text-anchor="middle">BFF 聚合 · 权限裁剪 · 唯一出口</text>
+
+  <line x1="370" y1="146" x2="370" y2="172" stroke="#A9A49C" stroke-width="1.2" marker-end="url(#a1)"/>
+  <text x="378" y="164" font-size="10" fill="#A9A49C">只读</text>
+
+  <!-- ============ row A ============ -->
+  <rect x="40" y="176" width="155" height="62" rx="8" fill="#EDF1F4" stroke="#C3CFDA"/>
+  <text x="117" y="200" font-size="12.5" font-weight="600" fill="#43536B" text-anchor="middle">catalog</text>
+  <text x="117" y="218" font-size="9.8" fill="#6B7F94" text-anchor="middle">资源 · 关系</text>
+  <text x="117" y="231" font-size="9.8" fill="#6B7F94" text-anchor="middle">标签策略</text>
+
+  <rect x="209" y="176" width="155" height="62" rx="8" fill="#F5F0EA" stroke="#DCCFBE"/>
+  <text x="286" y="200" font-size="12.5" font-weight="600" fill="#6E5B49" text-anchor="middle">collector</text>
+  <text x="286" y="218" font-size="9.8" fill="#A8907E" text-anchor="middle">云 API 适配</text>
+  <text x="286" y="231" font-size="9.8" fill="#A8907E" text-anchor="middle">Terraform state</text>
+
+  <rect x="378" y="176" width="155" height="62" rx="8" fill="#F7EDEA" stroke="#E3C7BE"/>
+  <text x="455" y="200" font-size="12.5" font-weight="600" fill="#8A5C4E" text-anchor="middle">drift</text>
+  <text x="455" y="218" font-size="9.8" fill="#C08B7D" text-anchor="middle">差异计算</text>
+  <text x="455" y="231" font-size="9.8" fill="#C08B7D" text-anchor="middle">PR 建议</text>
+
+  <rect x="547" y="176" width="155" height="62" rx="8" fill="#F6F1EC" stroke="#DBCBBC"/>
+  <text x="624" y="200" font-size="12.5" font-weight="600" fill="#7A6048" text-anchor="middle">posture</text>
+  <text x="624" y="218" font-size="9.8" fill="#B09074" text-anchor="middle">CSPM 导入</text>
+  <text x="624" y="231" font-size="9.8" fill="#B09074" text-anchor="middle">IAM 风险</text>
+
+  <!-- collector -> catalog -->
+  <line x1="205" y1="207" x2="200" y2="207" stroke="#A8907E" stroke-width="1.4" marker-end="url(#a1)"/>
+  <text x="202" y="170" font-size="9.5" fill="#A8907E" text-anchor="middle">唯一写入口</text>
+
+  <!-- ============ row B ============ -->
+  <rect x="37" y="262" width="212" height="62" rx="8" fill="#EEF2ED" stroke="#C6D2C2"/>
+  <text x="143" y="286" font-size="12.5" font-weight="600" fill="#4E6349" text-anchor="middle">cost</text>
+  <text x="143" y="304" font-size="9.8" fill="#8A9A86" text-anchor="middle">账单归一 · 归因 · 分摊</text>
+  <text x="143" y="317" font-size="9.8" fill="#8A9A86" text-anchor="middle">预算 · 异常 · 优化建议</text>
+
+  <rect x="265" y="262" width="212" height="62" rx="8" fill="#F2F0F4" stroke="#D2CCD8"/>
+  <text x="371" y="286" font-size="12.5" font-weight="600" fill="#5B5468" text-anchor="middle">delivery</text>
+  <text x="371" y="304" font-size="9.8" fill="#8C8497" text-anchor="middle">GitHub 事件 · 门禁</text>
+  <text x="371" y="317" font-size="9.8" fill="#8C8497" text-anchor="middle">审批 · 回滚 · DORA</text>
+
+  <rect x="493" y="262" width="212" height="62" rx="8" fill="#ECF2F1" stroke="#C0D2D0"/>
+  <text x="599" y="286" font-size="12.5" font-weight="600" fill="#45605E" text-anchor="middle">signal</text>
+  <text x="599" y="304" font-size="9.8" fill="#7E9A99" text-anchor="middle">告警收敛 · 事件关联</text>
+  <text x="599" y="317" font-size="9.8" fill="#7E9A99" text-anchor="middle">时间线 · SLA</text>
+
+  <!-- ============ 横切 ============ -->
+  <rect x="37" y="352" width="668" height="44" rx="8" fill="#FFFFFF" stroke="#DDD9D2" stroke-dasharray="5 3"/>
+  <text x="150" y="379" font-size="11" fill="#5F6569" text-anchor="middle">identity</text>
+  <text x="371" y="379" font-size="11" fill="#5F6569" text-anchor="middle">audit</text>
+  <text x="592" y="379" font-size="11" fill="#5F6569" text-anchor="middle">shared.spi</text>
+  <line x1="255" y1="362" x2="255" y2="386" stroke="#E2DFD9"/>
+  <line x1="480" y1="362" x2="480" y2="386" stroke="#E2DFD9"/>
+
+  <!-- ============ 依赖规则 ============ -->
+  <text x="40" y="432" font-size="12" font-weight="600" fill="#5F6569">三条硬规则（CI 门禁）</text>
+  <circle cx="46" cy="454" r="3" fill="#8A9A86"/>
+  <text x="58" y="458" font-size="11" fill="#6B7075">每个模块用 allowedDependencies 显式声明可依赖模块，未声明即编译可见性失败</text>
+  <circle cx="46" cy="480" r="3" fill="#8A9A86"/>
+  <text x="58" y="484" font-size="11" fill="#6B7075">跨模块只能访问 @NamedInterface 标注的包，禁止注入对方 Repository</text>
+  <circle cx="46" cy="506" r="3" fill="#8A9A86"/>
+  <text x="58" y="510" font-size="11" fill="#6B7075">ApplicationModules.verify() 进 CI，任何越界引用直接构建失败</text>
+
+  <rect x="40" y="530" width="665" height="70" rx="8" fill="#F4F3F0" stroke="#E2DFD9"/>
+  <text x="58" y="552" font-size="11" font-weight="600" fill="#5F6569">为什么不用 Kafka</text>
+  <text x="58" y="572" font-size="10.8" fill="#7A8085">峰值事件不足 1000/天。Modulith 的 Event Publication Registry 把事件持久化在同一事务内，</text>
+  <text x="58" y="590" font-size="10.8" fill="#7A8085">订阅者失败可 republishOutstandingEvents() 重放 —— 已具备 outbox 语义，零中间件成本。</text>
+
+  <!-- ============ 右侧事件表 ============ -->
+  <rect x="742" y="92" width="458" height="612" rx="10" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="762" y="118" font-size="12.5" font-weight="600" fill="#3A3E42">领域事件目录</text>
+  <text x="762" y="136" font-size="10" fill="#A9A49C">发布者 → 订阅者</text>
+
+  <rect x="754" y="148" width="434" height="24" rx="4" fill="#F4F3F0"/>
+  <text x="766" y="164" font-size="10" fill="#8A9095">事件</text>
+  <text x="992" y="164" font-size="10" fill="#8A9095">流向</text>
+
+  <g font-size="9.9">
+    <text x="766" y="196" fill="#43536B" font-weight="600">ResourceDiscovered</text>
+    <text x="992" y="196" fill="#7A8085">catalog → cost · posture · signal</text>
+    <line x1="754" y1="208" x2="1188" y2="208" stroke="#F0EEE9"/>
+
+    <text x="766" y="228" fill="#43536B" font-weight="600">ResourceVanished</text>
+    <text x="992" y="228" fill="#7A8085">catalog → cost · drift · signal</text>
+    <line x1="754" y1="240" x2="1188" y2="240" stroke="#F0EEE9"/>
+
+    <text x="766" y="260" fill="#43536B" font-weight="600">TagViolationDetected</text>
+    <text x="992" y="260" fill="#7A8085">catalog → cost · audit</text>
+    <line x1="754" y1="272" x2="1188" y2="272" stroke="#F0EEE9"/>
+
+    <text x="766" y="292" fill="#6E5B49" font-weight="600">CollectionCompleted</text>
+    <text x="992" y="292" fill="#7A8085">collector → drift</text>
+    <line x1="754" y1="304" x2="1188" y2="304" stroke="#F0EEE9"/>
+
+    <text x="766" y="324" fill="#4E6349" font-weight="600">BillIngested</text>
+    <text x="992" y="324" fill="#7A8085">cost → cost · web</text>
+    <line x1="754" y1="336" x2="1188" y2="336" stroke="#F0EEE9"/>
+
+    <text x="766" y="356" fill="#8A5C4E" font-weight="600">DriftDetected</text>
+    <text x="992" y="356" fill="#7A8085">drift → delivery · signal</text>
+    <line x1="754" y1="368" x2="1188" y2="368" stroke="#F0EEE9"/>
+
+    <text x="766" y="388" fill="#5B5468" font-weight="600">DeploymentSucceeded</text>
+    <text x="992" y="388" fill="#7A8085">delivery → cost · signal · posture</text>
+    <line x1="754" y1="400" x2="1188" y2="400" stroke="#F0EEE9"/>
+
+    <text x="766" y="420" fill="#4E6349" font-weight="600">BudgetThresholdBreached</text>
+    <text x="992" y="420" fill="#7A8085">cost → signal（飞书）</text>
+    <line x1="754" y1="432" x2="1188" y2="432" stroke="#F0EEE9"/>
+
+    <text x="766" y="452" fill="#4E6349" font-weight="600">CostAnomalyDetected</text>
+    <text x="992" y="452" fill="#7A8085">cost → signal</text>
+    <line x1="754" y1="464" x2="1188" y2="464" stroke="#F0EEE9"/>
+
+    <text x="766" y="484" fill="#5B5468" font-weight="600">ApprovalRequested</text>
+    <text x="992" y="484" fill="#7A8085">delivery → signal（飞书）</text>
+  </g>
+
+  <rect x="754" y="500" width="434" height="86" rx="8" fill="#F4F3F0" stroke="#E2DFD9"/>
+  <text x="770" y="522" font-size="11" font-weight="600" fill="#5F6569">★ 最高价值的一条链路</text>
+  <text x="770" y="542" font-size="10.5" fill="#7A8085">DeploymentSucceeded 之后 30 分钟内的告警，</text>
+  <text x="770" y="559" font-size="10.5" fill="#7A8085">自动挂到那次部署的 incident 上。</text>
+  <text x="770" y="576" font-size="10.5" fill="#7A8085">能砍掉大半「这次故障是不是我们发版引起的」的群聊。</text>
+
+  <rect x="754" y="600" width="434" height="86" rx="8" fill="#FBF8F4" stroke="#E4D8C9"/>
+  <text x="770" y="622" font-size="11" font-weight="600" fill="#8A7052">实现要点</text>
+  <text x="770" y="642" font-size="10.5" fill="#8A7358">@ApplicationModuleListener = 异步 + 新事务 + 至少一次投递</text>
+  <text x="770" y="659" font-size="10.5" fill="#8A7358">所有订阅者必须幂等（按 eventId 去重）</text>
+  <text x="770" y="676" font-size="10.5" fill="#8A7358">事件载荷只放 ID 与关键字段，不放整实体</text>
+
+  <text x="40" y="640" font-size="11" fill="#A9A49C">target/spring-modulith-docs/ 会生成 C4 组件图与事件流图，</text>
+  <text x="40" y="658" font-size="11" fill="#A9A49C">可直接作为本文档的活文档来源。</text>
+</svg>

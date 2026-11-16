@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 620" width="1240" height="620" font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <rect width="1240" height="620" fill="#FAF9F7"/>
+
+  <text x="40" y="44" font-size="21" font-weight="600" fill="#2E3134">实施路线图 · 每阶段必须有可演示、可被业务认可的价值</text>
+  <text x="40" y="68" font-size="12" fill="#8A9095">避免大爆炸交付：24 周拆成 4 个里程碑，每周都有可运行的东西</text>
+
+  <!-- timeline axis -->
+  <line x1="60" y1="205" x2="1180" y2="205" stroke="#DDD9D2" stroke-width="2"/>
+  <line x1="60" y1="205" x2="430" y2="205" stroke="#6B7F94" stroke-width="3"/>
+  <line x1="430" y1="205" x2="720" y2="205" stroke="#8A9A86" stroke-width="3"/>
+  <line x1="720" y1="205" x2="1010" y2="205" stroke="#A8907E" stroke-width="3"/>
+  <line x1="1010" y1="205" x2="1180" y2="205" stroke="#8C8497" stroke-width="3"/>
+
+  <!-- ===== M0 ===== -->
+  <circle cx="165" cy="205" r="9" fill="#FFFFFF" stroke="#6B7F94" stroke-width="3"/>
+  <text x="165" y="152" font-size="14" font-weight="600" fill="#43536B" text-anchor="middle">M0 · 地基</text>
+  <text x="165" y="174" font-size="11" fill="#6B7F94" text-anchor="middle">第 1–3 周</text>
+
+  <rect x="45" y="235" width="240" height="272" rx="9" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="61" y="257" font-size="10.5" font-weight="600" fill="#8A9095">交付物</text>
+  <circle cx="64" cy="273" r="2.4" fill="#6B7F94"/>
+  <text x="74" y="277" font-size="10.5" fill="#5F6569">账号注册 + AWS 采集器</text>
+  <circle cx="64" cy="293" r="2.4" fill="#6B7F94"/>
+  <text x="74" y="297" font-size="10.5" fill="#5F6569">catalog / identity / audit 模块</text>
+  <circle cx="64" cy="313" r="2.4" fill="#6B7F94"/>
+  <text x="74" y="317" font-size="10.5" fill="#5F6569">前端壳 + 资源目录（筛选/分页）</text>
+  <circle cx="64" cy="333" r="2.4" fill="#6B7F94"/>
+  <text x="74" y="337" font-size="10.5" fill="#5F6569">标签策略定义 + 违规产出</text>
+
+  <line x1="61" y1="356" x2="269" y2="356" stroke="#F0EEE9"/>
+  <text x="61" y="376" font-size="10.5" font-weight="600" fill="#8A9095">验收标准</text>
+  <text x="61" y="396" font-size="10.2" fill="#6B7075">首页能看到全部 AWS 资源，</text>
+  <text x="61" y="413" font-size="10.2" fill="#6B7075">数量与 Console 抽查一致，</text>
+  <text x="61" y="430" font-size="10.2" fill="#6B7075">verify() 通过</text>
+
+  <rect x="61" y="448" width="208" height="44" rx="6" fill="#EDF1F4"/>
+  <text x="165" y="466" font-size="10" fill="#43536B" text-anchor="middle">唯一目标：让所有人第一次</text>
+  <text x="165" y="482" font-size="10" fill="#43536B" text-anchor="middle">看到「我们到底有什么」</text>
+
+  <!-- ===== M1 ===== -->
+  <circle cx="455" cy="205" r="9" fill="#FFFFFF" stroke="#8A9A86" stroke-width="3"/>
+  <text x="455" y="152" font-size="14" font-weight="600" fill="#3E5239" text-anchor="middle">M1 · FinOps 第一版</text>
+  <text x="455" y="174" font-size="11" fill="#8A9A86" text-anchor="middle">第 4–8 周</text>
+
+  <rect x="335" y="235" width="240" height="272" rx="9" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="351" y="257" font-size="10.5" font-weight="600" fill="#8A9095">交付物</text>
+  <circle cx="354" cy="273" r="2.4" fill="#8A9A86"/>
+  <text x="364" y="277" font-size="10.5" fill="#5F6569">S0 账单管道：CE API 回填 13 个月</text>
+  <circle cx="354" cy="293" r="2.4" fill="#8A9A86"/>
+  <text x="364" y="297" font-size="10.5" fill="#5F6569">成本看板：账号/服务/项目/环境下钻</text>
+  <circle cx="354" cy="313" r="2.4" fill="#8A9A86"/>
+  <text x="364" y="317" font-size="10.5" fill="#5F6569">未打标占比 + 补标签 PR 生成</text>
+  <circle cx="354" cy="333" r="2.4" fill="#8A9A86"/>
+  <text x="364" y="337" font-size="10.5" fill="#5F6569">预算阈值告警 → 飞书卡片</text>
+  <circle cx="354" cy="353" r="2.4" fill="#8A9A86"/>
+  <text x="364" y="357" font-size="10.5" fill="#5F6569">异常检测（MAD + 绝对增量双条件）</text>
+
+  <line x1="351" y1="372" x2="559" y2="372" stroke="#F0EEE9"/>
+  <text x="351" y="392" font-size="10.5" font-weight="600" fill="#8A9095">验收标准</text>
+  <text x="351" y="412" font-size="10.2" fill="#6B7075">月度总成本与财务账单</text>
+  <text x="351" y="429" font-size="10.2" fill="#6B7075">误差 &lt; 1%；未打标占比</text>
+  <text x="351" y="446" font-size="10.2" fill="#6B7075">出现向下趋势曲线</text>
+
+  <rect x="351" y="462" width="208" height="30" rx="6" fill="#EEF2ED"/>
+  <text x="455" y="482" font-size="10" fill="#3E5239" text-anchor="middle">价值必须用金额讲，不能用图表讲</text>
+
+  <!-- ===== M2 ===== -->
+  <circle cx="745" cy="205" r="9" fill="#FFFFFF" stroke="#A8907E" stroke-width="3"/>
+  <text x="745" y="152" font-size="14" font-weight="600" fill="#6E5B49" text-anchor="middle">M2 · 漂移 + 发布治理</text>
+  <text x="745" y="174" font-size="11" fill="#A8907E" text-anchor="middle">第 9–14 周</text>
+
+  <rect x="625" y="235" width="240" height="272" rx="9" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="641" y="257" font-size="10.5" font-weight="600" fill="#8A9095">交付物</text>
+  <circle cx="644" cy="273" r="2.4" fill="#A8907E"/>
+  <text x="654" y="277" font-size="10.5" fill="#5F6569">TF state 接入 + tf_address 关联</text>
+  <circle cx="644" cy="293" r="2.4" fill="#A8907E"/>
+  <text x="654" y="297" font-size="10.5" fill="#5F6569">漂移双通道 · 三类分级</text>
+  <circle cx="644" cy="313" r="2.4" fill="#A8907E"/>
+  <text x="654" y="317" font-size="10.5" fill="#5F6569">漂移 → PR 闭环（三种模板）</text>
+  <circle cx="644" cy="333" r="2.4" fill="#A8907E"/>
+  <text x="654" y="337" font-size="10.5" fill="#5F6569">GitHub App · 流水线视图</text>
+  <circle cx="644" cy="353" r="2.4" fill="#A8907E"/>
+  <text x="654" y="357" font-size="10.5" fill="#5F6569">晋级门禁 · 回滚 · DORA 四指标</text>
+
+  <line x1="641" y1="372" x2="849" y2="372" stroke="#F0EEE9"/>
+  <text x="641" y="392" font-size="10.5" font-weight="600" fill="#8A9095">验收标准</text>
+  <text x="641" y="412" font-size="10.2" fill="#6B7075">tf_address 关联率 &gt; 90%；</text>
+  <text x="641" y="429" font-size="10.2" fill="#6B7075">完成 3 次真实漂移修复；</text>
+  <text x="641" y="446" font-size="10.2" fill="#6B7075">一次演练回滚成功</text>
+
+  <rect x="641" y="462" width="208" height="30" rx="6" fill="#F5F0EA"/>
+  <text x="745" y="482" font-size="10" fill="#6E5B49" text-anchor="middle">漂移看板不能变成噪音垃圾桶</text>
+
+  <!-- ===== M3 ===== -->
+  <circle cx="1035" cy="205" r="9" fill="#FFFFFF" stroke="#8C8497" stroke-width="3"/>
+  <text x="1035" y="152" font-size="14" font-weight="600" fill="#5B5468" text-anchor="middle">M3 · 精确化与扩展</text>
+  <text x="1035" y="174" font-size="11" fill="#8C8497" text-anchor="middle">第 15–24 周</text>
+
+  <rect x="915" y="235" width="240" height="272" rx="9" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="931" y="257" font-size="10.5" font-weight="600" fill="#8A9095">交付物</text>
+  <circle cx="934" cy="273" r="2.4" fill="#8C8497"/>
+  <text x="944" y="277" font-size="10.5" fill="#5F6569">CUR 2.0 + DuckDB 精确到单资源</text>
+  <circle cx="934" cy="293" r="2.4" fill="#8C8497"/>
+  <text x="944" y="297" font-size="10.5" fill="#5F6569">分摊规则引擎 + 三口径并存</text>
+  <circle cx="934" cy="313" r="2.4" fill="#8C8497"/>
+  <text x="944" y="317" font-size="10.5" fill="#5F6569">优化建议：闲置 / rightsizing / RI-SP</text>
+  <circle cx="934" cy="333" r="2.4" fill="#8C8497"/>
+  <text x="944" y="337" font-size="10.5" fill="#5F6569">GCP + Azure 接入 · 口径对齐</text>
+  <circle cx="934" cy="353" r="2.4" fill="#8C8497"/>
+  <text x="944" y="357" font-size="10.5" fill="#5F6569">安全基线 + 告警收敛关联</text>
+
+  <line x1="931" y1="372" x2="1139" y2="372" stroke="#F0EEE9"/>
+  <text x="931" y="392" font-size="10.5" font-weight="600" fill="#8A9095">验收标准</text>
+  <text x="931" y="412" font-size="10.2" fill="#6B7075">成本可下钻到单资源；</text>
+  <text x="931" y="429" font-size="10.2" fill="#6B7075">分摊结果无重大异议；</text>
+  <text x="931" y="446" font-size="10.2" fill="#6B7075">告警收敛率 &gt; 60%</text>
+
+  <rect x="931" y="462" width="208" height="30" rx="6" fill="#F2F0F4"/>
+  <text x="1035" y="482" font-size="10" fill="#5B5468" text-anchor="middle">节省金额必须可量化、可归因</text>
+
+  <!-- footer -->
+  <rect x="45" y="530" width="1110" height="52" rx="8" fill="#F4F3F0" stroke="#E2DFD9"/>
+  <text x="63" y="551" font-size="10.8" font-weight="600" fill="#5F6569">最小可行团队</text>
+  <text x="150" y="551" font-size="10.6" fill="#7A8085">1 后端 + 1 前端 + 0.3 SRE（凭据与网络）+ 0.3 FinOps（口径与验收）</text>
+  <text x="63" y="571" font-size="10.8" font-weight="600" fill="#C08B7D">若只有 1 人</text>
+  <text x="150" y="571" font-size="10.6" fill="#8A6A5E">M0→M1 合并拉长到 12 周，M2 拆成「漂移」与「发布治理」两块分开做，绝不并行 —— 并行是这类项目烂尾的头号原因</text>
+</svg>

@@ -1,0 +1,2394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console One · 基础设施管理平台（V2 原型）</title>
+<style>
+:root{
+  --bg:#F7F6F3; --surface:#FFFFFF; --surface2:#FBFAF8; --surface3:#FCFBF9;
+  --border:#E7E3DC; --border-soft:#F0EDE7;
+  --ink:#2E3134; --ink2:#5F6569; --ink3:#8A9095; --ink4:#B0B5B9;
+  --blue:#6B7F94; --blue-bg:#EDF1F4; --blue-bd:#C3CFDA;
+  --sage:#8A9A86; --sage-bg:#EFF3EE; --sage-bd:#D3DECF;
+  --clay:#C08B7D; --clay-bg:#FAEDE9; --clay-bd:#EBD3CB;
+  --sand:#A8907E; --sand-bg:#F7F1E9; --sand-bd:#E7D9C6;
+  --lilac:#8C8497; --lilac-bg:#F3F1F5; --lilac-bd:#DAD4E0;
+  --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  font-size:13.5px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+.app{display:flex; min-height:100vh}
+
+/* ---------- sidebar ---------- */
+.sidebar{
+  width:226px; flex:0 0 226px; background:var(--surface2);
+  border-right:1px solid var(--border);
+  padding:18px 12px 14px; display:flex; flex-direction:column;
+  position:sticky; top:0; height:100vh;
+}
+.brand{display:flex; gap:10px; align-items:center; padding:0 6px 18px}
+.logo{
+  width:32px;height:32px;border-radius:9px;flex:0 0 32px;
+  background:linear-gradient(140deg,#7E93A8,#5F7386);
+  color:#fff;font-size:12.5px;font-weight:600;letter-spacing:.4px;
+  display:flex;align-items:center;justify-content:center;
+}
+.brand-name{font-size:13.5px;font-weight:600;letter-spacing:-.1px}
+.brand-sub{font-size:10.5px;color:var(--ink3);margin-top:-1px}
+.nav-group{font-size:10.5px;color:var(--ink4);letter-spacing:.6px;padding:14px 8px 6px}
+.nav-item{
+  display:flex;align-items:center;gap:9px;padding:7.5px 9px;border-radius:8px;
+  cursor:pointer;color:var(--ink2);font-size:13px;user-select:none;
+  transition:background .14s,color .14s;
+}
+.nav-item:hover{background:#F2F0EB;color:var(--ink)}
+.nav-item.on{background:var(--blue-bg);color:#3A4653;font-weight:600}
+.nav-item svg{width:15px;height:15px;flex:0 0 15px;opacity:.75}
+.nav-item.on svg{opacity:1}
+.nav-badge{
+  margin-left:auto;font-size:10.5px;padding:0 6px;height:17px;line-height:17px;
+  border-radius:9px;background:var(--clay-bg);color:#8A5C4E;font-weight:600;
+}
+.nav-dot{margin-left:auto;width:5px;height:5px;border-radius:50%;background:#B0B5B9}
+.side-foot{margin-top:auto;padding:10px 6px 0;border-top:1px solid var(--border)}
+.fresh-row{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--ink3);padding:3px 0}
+.dot{width:5px;height:5px;border-radius:50%;flex:0 0 5px}
+.dot.ok{background:#7F9379} .dot.warn{background:#C9A77E} .dot.bad{background:#BC7C69}
+
+/* ---------- main ---------- */
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{
+  position:sticky;top:0;z-index:20;background:rgba(250,249,247,.88);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--border);
+  padding:12px 26px;display:flex;align-items:center;justify-content:space-between;gap:18px;
+}
+.page-title{font-size:16px;font-weight:600;letter-spacing:-.2px}
+.page-sub{font-size:11px;color:var(--ink3);margin-top:1px}
+.top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.seg{display:flex;background:#F1EFEA;border:1px solid var(--border);border-radius:8px;padding:2px}
+.seg button{
+  border:0;background:transparent;font:inherit;font-size:11.5px;color:var(--ink2);
+  padding:4px 10px;border-radius:6px;cursor:pointer;transition:.14s;white-space:nowrap;
+}
+.seg button.on{background:#fff;color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(46,49,52,.07)}
+.avatar{
+  width:29px;height:29px;border-radius:50%;background:#E4E0D8;color:#6B6560;
+  font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;
+}
+.view{padding:22px 26px 70px;max-width:1440px;width:100%}
+
+/* ---------- primitives ---------- */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
+.card-h{
+  padding:14px 18px;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;border-bottom:1px solid var(--border-soft);
+}
+.card-t{font-size:13px;font-weight:600;letter-spacing:-.1px}
+.card-s{font-size:11px;color:var(--ink3);margin-top:2px}
+.card-b{padding:16px 18px}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:1fr 1fr}
+.g-wide{grid-template-columns:1.62fr 1fr}
+.row{display:flex;gap:14px}
+.muted{color:var(--ink3)}
+.tiny{font-size:11px}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:'SF Mono',Consolas,'Courier New',monospace;font-size:10.5px}
+h3.sec{font-size:12px;font-weight:600;color:var(--ink2);margin:22px 0 10px;letter-spacing:.2px}
+
+.kpi{padding:15px 17px}
+.kpi-l{font-size:11.5px;color:var(--ink3);display:flex;align-items:center;gap:5px}
+.kpi-v{font-size:25px;font-weight:600;letter-spacing:-.6px;margin-top:5px}
+.kpi-v.sm{font-size:21px}
+.kpi-f{font-size:11px;color:var(--ink3);margin-top:6px;display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.up{color:#B4664F;font-weight:600}
+.down{color:#5E7D57;font-weight:600}
+
+.badge{
+  display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;
+  padding:1.5px 7px;border-radius:20px;border:1px solid transparent;white-space:nowrap;
+}
+.b-p0{background:var(--clay-bg);color:#8A5C4E;border-color:var(--clay-bd)}
+.b-p1{background:var(--sand-bg);color:#8A7052;border-color:var(--sand-bd)}
+.b-p2{background:var(--sage-bg);color:#4E6349;border-color:var(--sage-bd)}
+.b-info{background:var(--blue-bg);color:#43536B;border-color:var(--blue-bd)}
+.b-lilac{background:var(--lilac-bg);color:#5B5468;border-color:var(--lilac-bd)}
+.b-plain{background:#F4F3F0;color:#6B7075;border-color:var(--border)}
+.b-outline{background:#fff;color:#6B7075;border-color:#C9C4BC}
+
+.chip{
+  border:1px solid var(--border);background:#fff;border-radius:7px;padding:4.5px 10px;
+  font-size:11.5px;color:var(--ink2);cursor:pointer;transition:.14s;font-family:inherit;
+}
+.chip:hover{border-color:#CFCAC2}
+.chip.on{background:var(--blue-bg);border-color:var(--blue-bd);color:#3A4653;font-weight:600}
+.btn{
+  border:1px solid var(--border);background:#fff;border-radius:7px;padding:5.5px 11px;
+  font-size:11.5px;color:var(--ink2);cursor:pointer;font-family:inherit;transition:.14s;
+}
+.btn:hover{background:#FAF8F5;border-color:#CFCAC2}
+.btn-primary{background:#5F7386;border-color:#5F7386;color:#fff}
+.btn-primary:hover{background:#546879;border-color:#546879}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* ---------- table ---------- */
+.tbl-wrap{overflow:auto;max-height:640px}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl thead th{
+  position:sticky;top:0;z-index:2;background:var(--surface3);text-align:left;
+  font-weight:500;color:var(--ink3);font-size:11.5px;padding:9px 14px;
+  border-bottom:1px solid var(--border);white-space:nowrap;
+}
+.tbl thead th.sortable{cursor:pointer;user-select:none}
+.tbl thead th.sortable:hover{color:var(--ink2)}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--border-soft);vertical-align:middle}
+.tbl tbody tr{cursor:pointer}
+.tbl tbody tr:hover td{background:#FBFAF7}
+.tbl .r{text-align:right}
+.name{font-weight:500}
+.sub{font-size:10.5px;color:var(--ink3);margin-top:1px}
+
+/* ---------- misc ---------- */
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--ink3);align-items:center}
+.legend i{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:5px}
+.bar-row{display:flex;align-items:center;gap:11px;padding:7px 0}
+.bar-lbl{width:112px;font-size:12px;color:var(--ink2);flex:0 0 112px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:7px;background:#F1EFEA;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px}
+.bar-val{width:82px;text-align:right;font-size:11.5px;color:var(--ink2);flex:0 0 82px}
+
+.callout{
+  display:flex;gap:12px;padding:12px 16px;border-radius:10px;
+  background:var(--sand-bg);border:1px solid var(--sand-bd);font-size:12px;color:#7A6450;
+}
+.callout b{font-weight:600}
+.callout.info{background:var(--blue-bg);border-color:var(--blue-bd);color:#43536B}
+
+.item-row{
+  display:flex;align-items:center;gap:12px;padding:11px 18px;
+  border-bottom:1px solid var(--border-soft);cursor:pointer;
+}
+.item-row:last-child{border-bottom:0}
+.item-row:hover{background:#FBFAF7}
+.grow{flex:1;min-width:0}
+.arrow{color:var(--ink4);font-size:15px}
+
+.drift-card{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:11px;background:#fff}
+.drift-card:hover{border-color:#D8D3CA}
+.diff{
+  font-family:"SF Mono",Consolas,Monaco,monospace;font-size:11px;line-height:1.7;
+  background:#FBFAF8;border:1px solid var(--border-soft);border-radius:7px;
+  padding:9px 11px;margin-top:9px;overflow-x:auto;white-space:pre;
+}
+.diff .neg{color:#A9715C} .diff .pos{color:#5E7D57} .diff .key{color:var(--ink3)}
+
+.matrix{width:100%;border-collapse:collapse;font-size:11.5px}
+.matrix th{font-weight:500;color:var(--ink3);font-size:10.5px;padding:7px 9px;text-align:center;border-bottom:1px solid var(--border)}
+.matrix td{padding:7px 9px;border-bottom:1px solid var(--border-soft);text-align:center}
+.matrix td:first-child,.matrix th:first-child{text-align:left}
+.st{display:inline-block;width:9px;height:9px;border-radius:3px}
+
+/* ---------- tree ---------- */
+.tree-row{
+  display:flex;align-items:center;gap:9px;padding:7px 14px;
+  border-bottom:1px solid var(--border-soft);cursor:pointer;font-size:12.5px;
+}
+.tree-row:hover{background:#FBFAF7}
+.tree-row:last-child{border-bottom:0}
+.caret{width:10px;flex:0 0 10px;color:var(--ink4);font-size:9px;text-align:center}
+
+/* ---------- bridge ---------- */
+.bridge-row{display:flex;align-items:center;gap:10px;padding:5px 0}
+.bridge-lbl{width:128px;flex:0 0 128px;font-size:11.5px;color:var(--ink2)}
+.bridge-track{position:relative;flex:1;height:16px;background:#F7F5F1;border-radius:5px;overflow:hidden}
+.bridge-mid{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border)}
+.bridge-bar{position:absolute;top:3px;height:10px;border-radius:3px}
+.bridge-val{width:78px;flex:0 0 78px;text-align:right;font-size:11.5px}
+
+/* ---------- drawer ---------- */
+.scrim{position:fixed;inset:0;background:rgba(46,49,52,.16);opacity:0;pointer-events:none;transition:.26s;z-index:50}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{
+  position:fixed;top:0;right:0;height:100vh;width:min(560px,92vw);background:#fff;
+  border-left:1px solid var(--border);transform:translateX(101%);transition:transform .26s ease;
+  z-index:60;overflow-y:auto;box-shadow:-24px 0 50px -34px rgba(46,49,52,.4);
+}
+.drawer.on{transform:none}
+.drawer-h{padding:18px 22px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:2}
+.drawer-b{padding:18px 22px 40px}
+.kv{display:flex;padding:8px 0;border-bottom:1px solid var(--border-soft);font-size:12.5px}
+.kv-k{width:120px;flex:0 0 120px;color:var(--ink3);font-size:12px}
+.kv-v{flex:1;min-width:0;word-break:break-all}
+.tag{display:inline-block;background:#F4F3F0;border:1px solid var(--border);border-radius:5px;
+  padding:1.5px 7px;font-size:10.5px;color:var(--ink2);margin:0 5px 5px 0;
+  font-family:"SF Mono",Consolas,monospace}
+.close{width:26px;height:26px;border-radius:7px;border:1px solid var(--border);background:#fff;
+  cursor:pointer;color:var(--ink3);font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center}
+
+@media (max-width:1180px){
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:1fr}
+  .g-wide,.g2{grid-template-columns:1fr}
+}
+@media (max-width:820px){
+  .sidebar{display:none}
+  .view{padding:16px 14px 60px}
+  .topbar{padding:10px 14px;flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">C1</div>
+      <div>
+        <div class="brand-name">Console One</div>
+        <div class="brand-sub">基础设施管理平台 · V2</div>
+      </div>
+    </div>
+    <nav id="nav"></nav>
+    <div class="side-foot">
+      <div class="fresh-row"><span class="dot ok"></span>三云采集 · 12 分钟前</div>
+      <div class="fresh-row"><span class="dot warn"></span>账单 T+2 · 截止 11-14</div>
+      <div class="fresh-row"><span class="dot ok"></span>GitHub 事件 · 实时</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="page-title" id="title">总览</div>
+        <div class="page-sub" id="sub"></div>
+      </div>
+      <div class="top-actions">
+        <div class="seg" id="segSite">
+          <button data-v="ALL" class="on">全部站点</button>
+          <button data-v="photos">photos</button>
+          <button data-v="management">management</button>
+          <button data-v="platform">platform</button>
+        </div>
+        <div class="seg" id="segBasis">
+          <button data-v="allocated" class="on">分摊后</button>
+          <button data-v="amortized">摊销</button>
+          <button data-v="billed">账单</button>
+        </div>
+        <div class="seg" id="segCur">
+          <button data-v="CNY" class="on">CNY</button>
+          <button data-v="USD">USD</button>
+        </div>
+        <button class="chip" data-sources="1" title="展开三云与 CI 各自的最后成功时间"
+          style="display:flex;align-items:center;gap:6px"><span class="dot ok"></span>数据 12 分钟前</button>
+        <div class="avatar">ZY</div>
+      </div>
+    </header>
+    <main class="view" id="view"></main>
+  </div>
+</div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer"></aside>
+
+<script>
+/* ============================================================
+   状态与工具
+   ============================================================ */
+const RATE = 7.12;
+const state = {
+  page:'overview', basis:'allocated', cur:'CNY', site:'ALL',
+  q:'', cloud:'ALL', catView:'list', sort:{k:'c',d:'desc'},
+  driftTab:'ALL', sel:'photos/01-storage', tree:{}, inferred:false, graphView:'layer'
+};
+
+const BASIS_LABEL = {allocated:'分摊后口径', amortized:'摊销口径', billed:'账单口径'};
+const BASIS_NOTE = {
+  allocated:'共享成本按规则再分配 · 内部结算用',
+  amortized:'RI/SP 预付按使用期分摊',
+  billed:'当期开票金额 · 财务付款与对账'
+};
+
+function money(usd, opt){
+  opt = opt || {};
+  const mult = state.basis==='billed' ? 1.038 : (state.basis==='amortized' ? 0.994 : 1);
+  let v = usd * mult;
+  if(state.cur === 'CNY') v *= RATE;
+  const sym = state.cur === 'CNY' ? '¥' : '$';
+  if(opt.raw) return sym + Math.round(v).toLocaleString('en-US');
+  if(state.cur === 'CNY' && v >= 10000) return sym + (v/10000).toFixed(1) + '万';
+  if(state.cur === 'USD' && v >= 10000) return sym + (v/1000).toFixed(1) + 'k';
+  if(v >= 1000) return sym + Math.round(v).toLocaleString('en-US');
+  return sym + v.toFixed(v < 10 ? 1 : 0);
+}
+const pct = (a,b) => (b ? (a/b*100) : 0).toFixed(1);
+
+/* ============================================================
+   结构常量：站点 / 层
+   ============================================================ */
+const SITES = {
+  'photos':      {n:'图片站', plane:'DATA',    color:'#6B7F94', bg:'#EDF1F4', bd:'#C3CFDA', clouds:'AWS + GCP 双活'},
+  'management':  {n:'管理站', plane:'OBS',     color:'#8A9A86', bg:'#EFF3EE', bd:'#D3DECF', clouds:'AWS'},
+  'platform':    {n:'平台站', plane:'CONTROL', color:'#C08B7D', bg:'#FAEDE9', bd:'#E3C7BE', clouds:'Azure'},
+  's00-account': {n:'共享层', plane:'CONTROL', color:'#8C8497', bg:'#F3F1F5', bd:'#DAD4E0', clouds:'Azure'}
+};
+/* 层号 = apply 顺序：00 先 apply，04 最后。图上自上而下是依赖方向，自下而上是 apply 方向 */
+const LAYERS = [
+  {n:4, id:'04-edge',      cn:'入口', y:44},
+  {n:3, id:'03-compute',   cn:'计算', y:138},
+  {n:2, id:'02-data',      cn:'数据', y:232},
+  {n:1, id:'01-storage',   cn:'存储', y:326},
+  {n:0, id:'00-bootstrap', cn:'基座', y:420}
+];
+const BAND_H = 86;
+
+/* ============================================================
+   模拟数据：16 个层节点 = s00-account + 3 站 × 5 层
+   ============================================================ */
+const NODES = [
+  {id:'photos/04-edge',     site:'photos', L:4, l:'图片分发入口',   res:18, cost:4200,  tier:'P0', t:'CloudFront + WAF'},
+  {id:'photos/03-compute',  site:'photos', L:3, l:'图片处理服务',   res:42, cost:16800, tier:'P0', t:'ECS + Lambda'},
+  {id:'photos/02-data',     site:'photos', L:2, l:'元数据与索引',   res:14, cost:9600,  tier:'P0', t:'RDS + OpenSearch'},
+  {id:'photos/01-storage',  site:'photos', L:1, l:'原图与派生图',   res:9,  cost:8800,  tier:'P0', t:'S3 主 + GCS 备'},
+  {id:'photos/00-bootstrap',site:'photos', L:0, l:'账号基线与网络', res:11, cost:2700,  tier:'P0', t:'VPC / IAM / KMS'},
+
+  {id:'management/04-edge',     site:'management', L:4, l:'运维入口',           res:6,  cost:600,  tier:'P1', t:'VPN + 内部 ALB'},
+  {id:'management/03-compute',  site:'management', L:3, l:'运维工具与 Runner',  res:12, cost:2200, tier:'P1', t:'EC2 ASG'},
+  {id:'management/02-data',     site:'management', L:2, l:'运维数据',           res:5,  cost:1500, tier:'P2', t:'DynamoDB'},
+  {id:'management/01-storage',  site:'management', L:1, l:'日志归档与备份',     res:7,  cost:1900, tier:'P1', t:'S3 + Glacier'},
+  {id:'management/00-bootstrap',site:'management', L:0, l:'观测面基线',         res:8,  cost:700,  tier:'P1', t:'VPC / IAM'},
+
+  {id:'platform/04-edge',     site:'platform', L:4, l:'平台入口',   res:4,  cost:1900, tier:'P1', t:'Front Door'},
+  {id:'platform/03-compute',  site:'platform', L:3, l:'平台服务',   res:16, cost:3800, tier:'P1', t:'Container Apps'},
+  {id:'platform/02-data',     site:'platform', L:2, l:'平台库',     res:7,  cost:5000, tier:'P1', t:'PG Flexible'},
+  {id:'platform/01-storage',  site:'platform', L:1, l:'快照与导出', res:5,  cost:1200, tier:'P2', t:'Blob'},
+  {id:'platform/00-bootstrap',site:'platform', L:0, l:'控制面基线', res:6,  cost:500,  tier:'P1', t:'RG / MI / KV'},
+
+  {id:'s00-account', site:'s00-account', L:-1, l:'共享层', res:14, cost:900, tier:'P0', t:'组织 / 账号 / state / DNS'}
+];
+const NODE = Object.fromEntries(NODES.map(n=>[n.id,n]));
+const TOTAL_RES = NODES.reduce((a,b)=>a+b.res,0);
+
+/* 边：方向恒为「被依赖 → 依赖」（图上自上而下）。跨站点只允许指向共享层 */
+const EDGES = [
+  {f:'photos/04-edge',t:'photos/03-compute',ev:'栈结构',c:1.00,why:'04-edge 清单声明依赖 03-compute，service 选择器绑定其输出',src:'photos/04-edge/layers.yaml:18'},
+  {f:'photos/03-compute',t:'photos/02-data',ev:'remote_state',c:1.00,why:'data.terraform_remote_state.data.outputs.db_endpoint',src:'photos/03-compute/main.tf:42'},
+  {f:'photos/02-data',t:'photos/01-storage',ev:'remote_state',c:1.00,why:'bucket_id 与 bucket_region 来自 01-storage 输出',src:'photos/02-data/data.tf:11'},
+  {f:'photos/01-storage',t:'photos/00-bootstrap',ev:'栈结构',c:1.00,why:'kms_key_arn 与 vpc_id 由基座层输出',src:'photos/01-storage/main.tf:7'},
+  {f:'photos/04-edge',t:'photos/01-storage',ev:'配置引用',c:0.90,why:'origin 直读原图桶（OAI），不经过 03-compute',src:'photos/04-edge/cdn.tf:63',route:'left'},
+  {f:'photos/03-compute',t:'photos/01-storage',ev:'流量日志',c:0.85,why:'VPC Flow Logs 命中 S3 端点，代码中无显式引用',src:'flowlog:photos-vpc/2026-11-15'},
+
+  {f:'management/04-edge',t:'management/03-compute',ev:'栈结构',c:1.00,why:'运维入口的 target group 指向工具层',src:'management/04-edge/tg.tf:22'},
+  {f:'management/03-compute',t:'management/02-data',ev:'remote_state',c:1.00,why:'inventory 表名与 ARN 来自 02-data 输出',src:'management/03-compute/main.tf:31'},
+  {f:'management/02-data',t:'management/01-storage',ev:'remote_state',c:1.00,why:'归档桶名来自 01-storage 输出',src:'management/02-data/main.tf:18'},
+  {f:'management/01-storage',t:'management/00-bootstrap',ev:'栈结构',c:1.00,why:'日志桶策略引用基座的 KMS key',src:'management/01-storage/main.tf:9'},
+  {f:'management/03-compute',t:'management/01-storage',ev:'配置引用',c:0.90,why:'Runner 日志直写归档桶前缀 runner/',src:'management/03-compute/runner.tf:88',route:'left'},
+
+  {f:'platform/04-edge',t:'platform/03-compute',ev:'栈结构',c:1.00,why:'Front Door origin 指向平台服务',src:'platform/04-edge/fd.tf:15'},
+  {f:'platform/03-compute',t:'platform/02-data',ev:'remote_state',c:1.00,why:'PG 连接串由 02-data 写入 Key Vault 后读取',src:'platform/03-compute/app.tf:24'},
+  {f:'platform/02-data',t:'platform/01-storage',ev:'remote_state',c:1.00,why:'备份容器名来自 01-storage 输出',src:'platform/02-data/backup.tf:13'},
+  {f:'platform/01-storage',t:'platform/00-bootstrap',ev:'栈结构',c:1.00,why:'存储账户使用基座的托管身份',src:'platform/01-storage/main.tf:6'},
+  {f:'platform/03-compute',t:'platform/01-storage',ev:'配置引用',c:0.90,why:'每日快照直写 blob 容器 snapshots/',src:'platform/03-compute/job.tf:19',route:'left'},
+
+  {f:'photos/04-edge',t:'photos/02-data',ev:'标签推断',c:0.70,why:'仅 site=photos 标签相同，代码中无引用',weak:1},
+  {f:'management/04-edge',t:'management/02-data',ev:'标签推断',c:0.70,why:'仅 site=management 标签相同，代码中无引用',weak:1}
+];
+const SHARED_REFS = 15;
+
+/* ============================================================
+   模拟数据：成本
+   ============================================================ */
+const MONTHS = ['25/12','26/01','26/02','26/03','26/04','26/05','26/06','26/07','26/08','26/09','26/10','26/11'];
+const COST = {
+  photos:    [36400,37100,36800,38200,38900,39400,39100,40200,40900,40600,41800,42100],
+  management:[ 6100, 6200, 6050, 6300, 6400, 6500, 6420, 6600, 6700, 6650, 6800, 6900],
+  platform:  [10800,11100,10800,11200,11500,11800,11600,12000,12300,12100,12400,12400],
+  shared:    [  800,  800,  820,  840,  850,  860,  850,  870,  880,  880,  900,  900],
+  budget:    [54000,55000,54500,56000,57000,58000,57500,59000,60000,59500,61000,62000]
+};
+const TOTAL_LATEST = 42100+6900+12400+900;   /* 62300 */
+const MTD = 61800, FORECAST = 66400, BUDGET = 62000;
+const UNALLOC = 890;
+const BILLED = 64200, ALLOCATED = 62300;
+const SAVING = 5788;
+
+const BRIDGE = [
+  {k:'未分摊共享成本', v: 720, note:'s00-account 的共享支出未落到站点'},
+  {k:'承诺折扣未摊销', v:-430, note:'RI/SP 预付在账单口径一次计入'},
+  {k:'跨期调整',       v: 610, note:'上月用量在本月出账'},
+  {k:'税费',           v: 840, note:'发票含税，分摊不含税'},
+  {k:'汇率差',         v: 160, note:'账单美元汇率与看板 7.12 的差'}
+];
+const ALLOC_STEPS = [
+  {k:'① 资源直挂', v:51200, res:'124', note:'资源本身带站点/层归属'},
+  {k:'② 规范标签', v: 8400, res:'38',  note:'按 cost-center / site / layer 标签'},
+  {k:'③ 域树推断', v: 1810, res:'14',  note:'按账号、订阅、资源组继承'},
+  {k:'④ 未分配',   v:  890, res:'8',   note:'无法归属，单列不摊'}
+];
+const UNALLOC_ROWS = [
+  {n:'nat-0a3f9c',      site:'photos',     ow:'team-photos',   v:220, why:'未纳管，无标签', act:'生成 import PR'},
+  {n:'az-vm-legacy',    site:'platform',   ow:'team-platform', v:260, why:'历史资源，未纳入 Terraform', act:'纳管或回收'},
+  {n:'ebs-orphan-07',   site:'photos',     ow:'team-photos',   v:148, why:'未挂载 94 天', act:'生成删除 PR'},
+  {n:'stg-extra-bucket',site:'management', ow:'team-sre',      v:162, why:'缺 site / layer 标签', act:'生成补标签 PR'},
+  {n:'snapshot-12',     site:'photos',     ow:'team-photos',   v:100, why:'快照无归属标签', act:'生成补标签 PR'}
+];
+
+/* ============================================================
+   模拟数据：资源（示例集）
+   ============================================================ */
+const RESOURCES = [
+  {n:'photos-raw',t:'S3 Bucket',canon:'storage.object',p:'AWS',a:'photos-prod',r:'ap-northeast-1',site:'photos',layer:'01-storage',cloud:'prod',c:4200,d:1,at:'12 分钟前',own:'team-photos',tf:'module.storage.aws_s3_bucket.raw',tags:{'cost-center':'CC-2001',site:'photos',layer:'01-storage',owner:'team-photos'}},
+  {n:'photos-replica',t:'GCS Bucket',canon:'storage.object',p:'GCP',a:'photos-dr',r:'asia-northeast1',site:'photos',layer:'01-storage',cloud:'dr',c:1600,d:1,at:'14 分钟前',own:'team-photos',tf:'module.dr.google_storage_bucket.replica',tags:{'cost-center':'CC-2001',site:'photos',layer:'01-storage',owner:'team-photos'}},
+  {n:'photos-meta',t:'RDS PostgreSQL',canon:'rdbms',p:'AWS',a:'photos-prod',r:'ap-northeast-1',site:'photos',layer:'02-data',cloud:'prod',c:3600,d:1,at:'12 分钟前',own:'team-photos',tf:'module.data.aws_db_instance.meta',tags:{'cost-center':'CC-2001',site:'photos',layer:'02-data',owner:'team-photos'}},
+  {n:'photos-index',t:'OpenSearch',canon:'search',p:'AWS',a:'photos-prod',r:'ap-northeast-1',site:'photos',layer:'02-data',cloud:'prod',c:2100,d:0,at:'12 分钟前',own:'team-photos',tf:'module.data.aws_opensearch_domain.index',tags:{'cost-center':'CC-2001',site:'photos',layer:'02-data',owner:'team-photos'}},
+  {n:'photos-worker',t:'ECS Service',canon:'container',p:'AWS',a:'photos-prod',r:'ap-northeast-1',site:'photos',layer:'03-compute',cloud:'prod',c:8600,d:0,at:'12 分钟前',own:'team-photos',tf:'module.compute.aws_ecs_service.worker',tags:{'cost-center':'CC-2001',site:'photos',layer:'03-compute',owner:'team-photos'}},
+  {n:'photos-transform',t:'Lambda',canon:'serverless',p:'AWS',a:'photos-prod',r:'ap-northeast-1',site:'photos',layer:'03-compute',cloud:'prod',c:1240,d:0,at:'12 分钟前',own:'team-photos',tf:'module.compute.aws_lambda_function.transform',tags:{'cost-center':'CC-2001',site:'photos',layer:'03-compute',owner:'team-photos'}},
+  {n:'cdn-photos',t:'CloudFront',canon:'edge.cdn',p:'AWS',a:'photos-prod',r:'global',site:'photos',layer:'04-edge',cloud:'prod',c:3200,d:1,at:'12 分钟前',own:'team-photos',tf:'module.edge.aws_cloudfront_distribution.cdn',tags:{'cost-center':'CC-2001',site:'photos',layer:'04-edge',owner:'team-photos'}},
+  {n:'waf-photos',t:'WAF WebACL',canon:'edge.waf',p:'AWS',a:'photos-prod',r:'global',site:'photos',layer:'04-edge',cloud:'prod',c:480,d:0,at:'12 分钟前',own:'team-photos',tf:'module.edge.aws_wafv2_web_acl.main',tags:{'cost-center':'CC-2001',site:'photos',layer:'04-edge',owner:'team-photos'}},
+  {n:'photos-vpc',t:'VPC',canon:'network.vpc',p:'AWS',a:'photos-prod',r:'ap-northeast-1',site:'photos',layer:'00-bootstrap',cloud:'prod',c:0,d:0,at:'12 分钟前',own:'team-photos',tf:'module.base.aws_vpc.main',tags:{'cost-center':'CC-2001',site:'photos',layer:'00-bootstrap',owner:'team-photos'}},
+  {n:'photos-kms',t:'KMS Key',canon:'kms',p:'AWS',a:'photos-prod',r:'ap-northeast-1',site:'photos',layer:'00-bootstrap',cloud:'prod',c:12,d:0,at:'12 分钟前',own:'team-photos',tf:'module.base.aws_kms_key.this',tags:{'cost-center':'CC-2001',site:'photos',layer:'00-bootstrap',owner:'team-photos'}},
+
+  {n:'mgmt-log-archive',t:'S3 Bucket',canon:'storage.object',p:'AWS',a:'mgmt-obs',r:'ap-northeast-1',site:'management',layer:'01-storage',cloud:'prod',c:1200,d:1,at:'12 分钟前',own:'team-sre',tf:'module.obs.aws_s3_bucket.archive',tags:{'cost-center':'CC-9000',site:'management',layer:'01-storage',owner:'team-sre'}},
+  {n:'mgmt-backup',t:'S3 Glacier',canon:'storage.archive',p:'AWS',a:'mgmt-obs',r:'ap-northeast-1',site:'management',layer:'01-storage',cloud:'prod',c:700,d:0,at:'12 分钟前',own:'team-sre',tf:'module.obs.aws_glacier_vault.backup',tags:{'cost-center':'CC-9000',site:'management',layer:'01-storage',owner:'team-sre'}},
+  {n:'mgmt-inventory',t:'DynamoDB',canon:'nosql',p:'AWS',a:'mgmt-obs',r:'ap-northeast-1',site:'management',layer:'02-data',cloud:'prod',c:210,d:0,at:'12 分钟前',own:'team-sre',tf:'module.obs.aws_dynamodb_table.inventory',tags:{'cost-center':'CC-9000',site:'management',layer:'02-data',owner:'team-sre'}},
+  {n:'runner-fleet',t:'EC2 AutoScaling',canon:'compute',p:'AWS',a:'mgmt-obs',r:'ap-northeast-1',site:'management',layer:'03-compute',cloud:'prod',c:1400,d:0,at:'12 分钟前',own:'team-sre',tf:'module.runner.aws_autoscaling_group.runners',tags:{'cost-center':'CC-9000',site:'management',layer:'03-compute',owner:'team-sre'}},
+  {n:'mgmt-vpn',t:'Client VPN',canon:'network.vpn',p:'AWS',a:'mgmt-obs',r:'ap-northeast-1',site:'management',layer:'04-edge',cloud:'prod',c:600,d:0,at:'12 分钟前',own:'team-sre',tf:'module.obs.aws_ec2_client_vpn_endpoint.this',tags:{'cost-center':'CC-9000',site:'management',layer:'04-edge',owner:'team-sre'}},
+
+  {n:'platform-pg',t:'PG Flexible Server',canon:'rdbms',p:'AZURE',a:'platform-prod',r:'japaneast',site:'platform',layer:'02-data',cloud:'prod',c:4200,d:1,at:'11 分钟前',own:'team-platform',tf:'module.data.azurerm_postgresql_flexible_server.this',tags:{'cost-center':'CC-9000',site:'platform',layer:'02-data',owner:'team-platform'}},
+  {n:'platform-redis',t:'Azure Cache',canon:'cache',p:'AZURE',a:'platform-prod',r:'japaneast',site:'platform',layer:'02-data',cloud:'prod',c:800,d:0,at:'11 分钟前',own:'team-platform',tf:'module.data.azurerm_redis_cache.this',tags:{'cost-center':'CC-9000',site:'platform',layer:'02-data',owner:'team-platform'}},
+  {n:'platform-app',t:'Container Apps',canon:'container',p:'AZURE',a:'platform-prod',r:'japaneast',site:'platform',layer:'03-compute',cloud:'prod',c:3200,d:1,at:'11 分钟前',own:'team-platform',tf:'module.compute.azurerm_container_app.app',tags:{'cost-center':'CC-9000',site:'platform',layer:'03-compute',owner:'team-platform'}},
+  {n:'platform-worker',t:'Container Apps Job',canon:'container',p:'AZURE',a:'platform-prod',r:'japaneast',site:'platform',layer:'03-compute',cloud:'prod',c:600,d:0,at:'11 分钟前',own:'team-platform',tf:'module.compute.azurerm_container_app_job.collect',tags:{'cost-center':'CC-9000',site:'platform',layer:'03-compute',owner:'team-platform'}},
+  {n:'platform-blob',t:'Storage Account',canon:'storage.object',p:'AZURE',a:'platform-prod',r:'japaneast',site:'platform',layer:'01-storage',cloud:'prod',c:1200,d:0,at:'11 分钟前',own:'team-platform',tf:'module.storage.azurerm_storage_account.backup',tags:{'cost-center':'CC-9000',site:'platform',layer:'01-storage',owner:'team-platform'}},
+  {n:'platform-fd',t:'Front Door',canon:'edge.cdn',p:'AZURE',a:'platform-prod',r:'global',site:'platform',layer:'04-edge',cloud:'prod',c:1600,d:0,at:'11 分钟前',own:'team-platform',tf:'module.edge.azurerm_cdn_frontdoor_profile.this',tags:{'cost-center':'CC-9000',site:'platform',layer:'04-edge',owner:'team-platform'}},
+
+  {n:'az-dns-photos',t:'Azure DNS Zone',canon:'network.dns',p:'AZURE',a:'platform-shared',r:'global',site:'s00-account',layer:'s00-account',cloud:'prod',c:30,d:0,at:'11 分钟前',own:'team-platform',tf:'module.dns.azurerm_dns_zone.photos',tags:{'cost-center':'CC-9000',site:'s00-account',layer:'s00-account',owner:'team-platform'}},
+  {n:'tfstate-blob',t:'Storage Account',canon:'storage.object',p:'AZURE',a:'platform-shared',r:'japaneast',site:'s00-account',layer:'s00-account',cloud:'prod',c:120,d:0,at:'11 分钟前',own:'team-platform',tf:'module.state.azurerm_storage_container.tfstate',tags:{'cost-center':'CC-9000',site:'s00-account',layer:'s00-account',owner:'team-platform'}},
+  {n:'kv-platform',t:'Key Vault',canon:'kms',p:'AZURE',a:'platform-shared',r:'japaneast',site:'s00-account',layer:'s00-account',cloud:'prod',c:90,d:0,at:'11 分钟前',own:'team-platform',tf:'module.state.azurerm_key_vault.this',tags:{'cost-center':'CC-9000',site:'s00-account',layer:'s00-account',owner:'team-platform'}},
+  {n:'org-accounts',t:'AWS Organizations',canon:'iam.org',p:'AWS',a:'org-root',r:'global',site:'s00-account',layer:'s00-account',cloud:'prod',c:0,d:0,at:'12 分钟前',own:'team-platform',tf:'module.org.aws_organizations_account.this',tags:{'cost-center':'CC-9000',site:'s00-account',layer:'s00-account',owner:'team-platform'}},
+
+  {n:'nat-0a3f9c',t:'NAT Gateway',canon:'network.nat',p:'AWS',a:'photos-prod',r:'ap-northeast-1',site:'photos',layer:'03-compute',cloud:'prod',c:220,d:0,at:'12 分钟前',own:'—',tf:'—',tags:null},
+  {n:'ebs-orphan-07',t:'EBS Volume',canon:'storage.block',p:'AWS',a:'photos-prod',r:'ap-northeast-1',site:'photos',layer:'03-compute',cloud:'prod',c:148,d:0,at:'12 分钟前',own:'—',tf:'—',tags:null},
+  {n:'az-vm-legacy',t:'Virtual Machine',canon:'compute',p:'AZURE',a:'platform-prod',r:'japaneast',site:'platform',layer:'03-compute',cloud:'prod',c:260,d:0,at:'11 分钟前',own:'—',tf:'—',tags:null}
+];
+
+/* ============================================================
+   模拟数据：漂移（最小单位 = 资源 × 属性）
+   ============================================================ */
+const DRIFTS = [
+  {id:'d1',k:'MODIFIED',sev:'CRITICAL',res:'photos-raw',type:'S3 Bucket',site:'photos',layer:'01-storage',
+   attr:'public_access_block.block_public_acls',exp:'true',act:'false',ch:'通道 A',at:'今天 03:02',first:'2026-11-14',n:3,run:'PR #412',
+   diff:'  aws_s3_bucket_public_access_block.raw\n  ~ block_public_acls = false\n-                       true\n  # 期望值来自 photos/01-storage/main.tf:31'},
+  {id:'d2',k:'MODIFIED',sev:'CRITICAL',res:'platform-pg',type:'PG Flexible Server',site:'platform',layer:'02-data',
+   attr:'geo_redundant_backup_enabled',exp:'true',act:'false',ch:'通道 A',at:'今天 03:02',first:'2026-11-16',n:1,run:'—',
+   diff:'  azurerm_postgresql_flexible_server.platform\n  ~ geo_redundant_backup_enabled = false\n-                                  true\n  # 门户调整存储时关闭，与 02-data 期望不一致'},
+  {id:'d3',k:'MODIFIED',sev:'HIGH',res:'photos-meta',type:'RDS PostgreSQL',site:'photos',layer:'02-data',
+   attr:'backup_retention_period',exp:'7',act:'1',ch:'通道 A',at:'今天 03:02',first:'2026-11-09',n:9,run:'—',
+   diff:'  aws_db_instance.meta\n  ~ backup_retention_period = 1\n-                            7'},
+  {id:'d4',k:'MISSING',sev:'HIGH',res:'photos-replica',type:'GCS Bucket',site:'photos',layer:'01-storage',
+   attr:'整个资源',exp:'存在',act:'不存在',ch:'通道 B',at:'上周日 04:00',first:'2026-11-11',n:2,run:'—',
+   diff:'- google_storage_bucket.replica\n-   location = "ASIA-NORTHEAST1"\n- # state 中存在，云上已被删除'},
+  {id:'d5',k:'MODIFIED',sev:'MEDIUM',res:'platform-app',type:'Container Apps',site:'platform',layer:'03-compute',
+   attr:'max_replicas',exp:'10',act:'30',ch:'通道 A',at:'今天 03:02',first:'2026-11-15',n:2,run:'PR #418',
+   diff:'  azurerm_container_app.app\n  ~ max_replicas = 30\n-                  10'},
+  {id:'d6',k:'MODIFIED',sev:'MEDIUM',res:'cdn-photos',type:'CloudFront',site:'photos',layer:'04-edge',
+   attr:'tags.cost-center',exp:'CC-2001',act:'CC-1001',ch:'通道 A',at:'今天 03:02',first:'2026-11-16',n:1,run:'—',
+   diff:'  aws_cloudfront_distribution.cdn\n  ~ tags.cost-center = "CC-1001"\n+                      "CC-2001"'},
+  {id:'d7',k:'MODIFIED',sev:'MEDIUM',res:'mgmt-log-archive',type:'S3 Bucket',site:'management',layer:'01-storage',
+   attr:'lifecycle_rule[0].expiration.days',exp:'365',act:'90',ch:'通道 A',at:'今天 03:02',first:'2026-11-13',n:4,run:'—',
+   diff:'  aws_s3_bucket_lifecycle_configuration.archive\n  ~ expiration.days = 90\n-                     365'},
+  {id:'d8',k:'UNMANAGED',sev:'LOW',res:'az-vm-legacy',type:'Virtual Machine',site:'platform',layer:'03-compute',
+   attr:'整个资源',exp:'—',act:'存在',ch:'通道 A',at:'今天 03:02',first:'2026-10-02',n:46,run:'—',
+   diff:'+ azurerm_linux_virtual_machine.legacy\n+   size = "Standard_D2s_v3"\n+ # 云上存在，state 中无对应资源（已纳入回收清单）'}
+];
+const DRIFT_COVER = {checked:174, managed:TOTAL_RES};
+
+/* ============================================================
+   模拟数据：发布 / 安全 / 容灾 / 告警
+   ============================================================ */
+const RUNS = [
+  {id:'r1',site:'photos',layer:'04-edge',mode:'apply',st:'success',chg:'+2 ~1 −0',risk:'中',by:'lin.w',at:'12 分钟前',dur:'2m 18s',why:'WAF 规则更新（关联 d6 复核）'},
+  {id:'r2',site:'photos',layer:'01-storage',mode:'plan',st:'success',chg:'+0 ~1 −0',risk:'低',by:'ci-bot',at:'46 分钟前',dur:'1m 02s',why:'PR #418 计划检查'},
+  {id:'r3',site:'platform',layer:'02-data',mode:'apply',st:'failed',chg:'—',risk:'高',by:'wu.j',at:'2 小时前',dur:'3m 40s',why:'state lease 获取失败，已回滚'},
+  {id:'r4',site:'management',layer:'03-compute',mode:'apply',st:'success',chg:'+1 ~0 −0',risk:'低',by:'sre-bot',at:'昨天 22:10',dur:'1m 51s',why:'Runner 扩容'},
+  {id:'r5',site:'photos',layer:'03-compute',mode:'plan',st:'success',chg:'+0 ~3 −0',risk:'中',by:'zhao.m',at:'昨天 18:20',dur:'1m 33s',why:'push main 自动 plan'},
+  {id:'r6',site:'platform',layer:'03-compute',mode:'apply',st:'waiting',chg:'+1 ~2 −0',risk:'中',by:'chen.y',at:'待他人确认',dur:'—',why:'镜像版本升级'}
+];
+
+const FIND_M = [
+  {k:'公网暴露面',      crit:1, high:2, med:3, low:1},
+  {k:'静态加密与证书',  crit:1, high:1, med:2, low:0},
+  {k:'身份与权限',      crit:0, high:2, med:4, low:2},
+  {k:'密钥位置',        crit:1, high:0, med:1, low:0}
+];
+const FINDINGS = [
+  {r:'S3 桶未开启 public access block',c:'公网暴露面',sev:'CRITICAL',o:'photos-raw',ev:'photos/01-storage/main.tf:31',fix:'block_public_acls 等四项全开'},
+  {r:'PG 关闭地域冗余备份',c:'静态加密与证书',sev:'CRITICAL',o:'platform-pg',ev:'portal 修改 · 11-16 02:41',fix:'geo_redundant_backup_enabled = true'},
+  {r:'长期访问密钥未轮换（142 天）',c:'密钥位置',sev:'CRITICAL',o:'svc-photos-worker',ev:'IAM 密钥元数据',fix:'改走角色，删除静态密钥'},
+  {r:'安全组 22 端口对 0.0.0.0/0 放通',c:'公网暴露面',sev:'HIGH',o:'runner-sg',ev:'management/03-compute/runner.tf:88',fix:'收敛到 VPN 网段'},
+  {r:'RDS 备份保留 1 天',c:'静态加密与证书',sev:'HIGH',o:'photos-meta',ev:'API: backup_retention_period',fix:'保留期 ≥ 7 天'},
+  {r:'角色存在 Action:* 通配',c:'身份与权限',sev:'HIGH',o:'role/photos-deploy',ev:'IAM 策略文档',fix:'按资源 ARN 收敛'},
+  {r:'跨账号信任未限外部 ID',c:'身份与权限',sev:'MEDIUM',o:'role/platform-read',ev:'IAM 信任策略',fix:'增加 ExternalId 条件'}
+];
+
+const DR_ROWS = [
+  {c:'图片分发入口', L:'photos/04-edge', p:'AWS CloudFront', b:'GCP Cloud CDN', m:'Azure DNS 改解析',
+   ha:'Active-Active', rtoT:'5 min', rtoA:'6 min', rpo:'0', d:'2026-10-18', st:'ok', note:'演练 2 次'},
+  {c:'原图存储', L:'photos/01-storage', p:'AWS S3', b:'GCP GCS（单向复制）', m:'改回源 + 缓存预热',
+   ha:'Active-Read', rtoT:'15 min', rtoA:'18 min', rpo:'≤ 5 min', d:'2026-10-18', st:'warn', note:'复制延迟 4m12s'},
+  {c:'元数据库', L:'photos/02-data', p:'AWS RDS', b:'GCP Cloud SQL（只读）', m:'提升只读为主 + 停写',
+   ha:'Active-Passive', rtoT:'30 min', rtoA:'40 min', rpo:'≤ 1 min', d:'2026-08-02', st:'bad', note:'超 106 天未演练'},
+  {c:'平台入口', L:'platform/04-edge', p:'Azure Front Door', b:'管理站自托管入口', m:'Azure DNS 改解析',
+   ha:'Active-Passive', rtoT:'—', rtoA:'未验证', rpo:'—', d:'—', st:'none', note:'未演练'},
+  {c:'发布执行', L:'management/03-compute', p:'GitHub Actions', b:'管理站自托管 Runner', m:'切 workflow runner',
+   ha:'—', rtoT:'10 min', rtoA:'10 min', rpo:'0', d:'2026-11-02', st:'ok', note:'演练 3 次'},
+  {c:'Terraform state', L:'s00-account', p:'Azure Blob + lease', b:'—', m:'无需切换（已移出数据面）',
+   ha:'—', rtoT:'0', rtoA:'—', rpo:'0', d:'—', st:'iso', note:'已隔离'}
+];
+const ST_BADGE = {ok:['b-p2','达标'], warn:['b-p1','预警'], bad:['b-p0','超期'], none:['b-plain','未验证'], iso:['b-info','已隔离']};
+
+const DR_ASSETS = [
+  {a:'Terraform state', w:'Azure Blob + lease', st:'ok', block:'state 不可读写 → 任何 apply 都跑不起来，连恢复 AWS 本身都做不到'},
+  {a:'Provider 凭据',   w:'Azure Key Vault',    st:'ok', block:'取不到凭据 → 读不到目标云资源清单，切过去也无法验证'},
+  {a:'权威 DNS',        w:'Azure DNS',          st:'ok', block:'解析改不了 → 流量切不过去，这是整条切换链的唯一开关'},
+  {a:'制品 / 镜像仓库', w:'管理面 registry',    st:'ok', block:'拉不到镜像 → 备云扩不出实例，切换后无人服务'},
+  {a:'CI Runner',       w:'管理站自托管兜底',    st:'ok', block:'Runner 不可用 → 切换 workflow 没有执行者'},
+  {a:'平台自身',        w:'CONTROL 平面（Azure）', st:'doing', block:'平台与数据面同生共死 → 故障时看不到影响面，只能盲操作', cur:'04-edge 迁移中 · 目标 S2'}
+];
+const DR_DRILLS = [
+  {d:'2026-11-02', n:'发布执行切管理站 Runner', tgt:'10 min', act:'10 min', r:'通过', st:'ok', note:'切换 < 1 min，其余为流水线排队'},
+  {d:'2026-10-18', n:'图片入口切 GCP CDN', tgt:'5 min', act:'6 min', r:'通过', st:'ok', note:'DNS TTL 60s 生效，超出 1 min 属预期'},
+  {d:'2026-10-18', n:'原图存储切 GCS', tgt:'15 min', act:'18 min', r:'有条件通过', st:'warn', note:'复制延迟 4m12s，RPO 由 2 min 调整为 5 min'},
+  {d:'2026-08-02', n:'元数据库提主', tgt:'30 min', act:'40 min', r:'未通过', st:'bad', note:'停写窗口超出 10 min，整改项未闭环'}
+];
+const HA_MODES = [
+  {cap:'图片读取', mode:'Active-Active', conf:'按用户分片，两端可写缓存', rpo:'≈ 0'},
+  {cap:'图片写入', mode:'Active-Passive', conf:'主写备只读，热副本', rpo:'≤ 5 min'},
+  {cap:'元数据',   mode:'Active-Passive', conf:'主写备不写，提主需停写', rpo:'≤ 1 min'}
+];
+
+const ALERTS = [
+  {t:'图片处理队列积压 12,400 条',sev:'P1',site:'photos',layer:'03-compute',st:'处理中',at:'18 分钟前',dur:'18m',cause:'上游上传突增 · 无关联发布'},
+  {t:'平台库连接数 92% (460/500)',sev:'P1',site:'platform',layer:'02-data',st:'已定位',at:'2 小时前',dur:'1h 46m',cause:'关联发布 platform/03-compute（2 小时前）'},
+  {t:'分发入口 5xx 短暂尖峰 1.8%',sev:'P2',site:'photos',layer:'04-edge',st:'已恢复',at:'昨天 22:04',dur:'11m',cause:'自动收敛 · 与 AWS 健康事件 ap-northeast-1 相关'},
+  {t:'Runner 队列等待 > 8 分钟',sev:'P2',site:'management',layer:'03-compute',st:'已恢复',at:'昨天 15:20',dur:'24m',cause:'并发任务堆积，已扩容 2 台'}
+];
+const SOURCES = [
+  {s:'AWS',    k:'采集', at:'12 分钟前', ok:true,  n:'3 账号 · 68 资源'},
+  {s:'GCP',    k:'采集', at:'14 分钟前', ok:true,  n:'1 项目 · 9 资源'},
+  {s:'Azure',  k:'采集', at:'11 分钟前', ok:true,  n:'2 订阅 · 47 资源'},
+  {s:'GitHub', k:'事件', at:'实时',      ok:true,  n:'46 仓库 · 延迟 < 10s'},
+  {s:'账单',   k:'账单', at:'2026-11-14', ok:false, n:'T+2 · 三云齐备'}
+];
+const EVENTS = [
+  {t:'3 分钟前', x:'漂移新增', d:'photos/01-storage · public_access_block 与期望不一致', c:'#C9A77E'},
+  {t:'12 分钟前', x:'发布结束', d:'photos/04-edge apply 成功 · +2 ~1', c:'#8A9A86'},
+  {t:'46 分钟前', x:'计划检查', d:'PR #418 plan 完成 · 1 项修改', c:'#9EAEBE'},
+  {t:'2 小时前', x:'发布失败', d:'platform/02-data apply 失败 · state lease', c:'#C08B7D'},
+  {t:'今天 03:02', x:'采集完成', d:'三云 + GitHub 全部成功 · 已对账 174 个资源', c:'#8A9095'},
+  {t:'今天 02:41', x:'开关变化', d:'platform 站降级开关由 on 改为 off', c:'#8C8497'}
+];
+
+/* ============================================================
+   图表（手写 SVG）
+   ============================================================ */
+function chartStacked(){
+  const W=760, H=252, pad={l:52,r:14,t:16,b:28};
+  const series=[
+    {k:'photos',     c:'#6B7F94', v:COST.photos},
+    {k:'management', c:'#8A9A86', v:COST.management},
+    {k:'platform',   c:'#C08B7D', v:COST.platform},
+    {k:'共享',       c:'#B9B3C2', v:COST.shared}
+  ];
+  const n=MONTHS.length;
+  const tot=MONTHS.map((_,i)=>series.reduce((a,s)=>a+s.v[i],0));
+  const max=Math.max(...tot, ...COST.budget)*1.14;
+  const iw=W-pad.l-pad.r, ih=H-pad.t-pad.b, step=iw/n, bw=step*0.52;
+  const Y=v=>pad.t+ih*(1-v/max);
+  let s='';
+  for(let i=0;i<=4;i++){
+    const y=pad.t+ih*i/4, val=max*(1-i/4);
+    s+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="#F0EDE7" stroke-width="1"/>`;
+    s+=`<text x="${pad.l-9}" y="${y+3.5}" font-size="9.5" fill="#B0B5B9" text-anchor="end">${Math.round(val/1000)}k</text>`;
+  }
+  for(let i=0;i<n;i++){
+    const x=pad.l+step*i+(step-bw)/2;
+    let base=0;
+    for(const se of series){
+      const v=se.v[i];
+      const y0=Y(base+v), y1=Y(base);
+      s+=`<rect x="${x}" y="${y0}" width="${bw}" height="${Math.max(0,y1-y0)}" fill="${se.c}" rx="1.5" opacity="0.92">`
+        +`<title>${MONTHS[i]} · ${se.k} · $${v.toLocaleString()}</title></rect>`;
+      base+=v;
+    }
+    if(i%2===0) s+=`<text x="${x+bw/2}" y="${H-8}" font-size="9.5" fill="#A9A49C" text-anchor="middle">${MONTHS[i]}</text>`;
+  }
+  const pts=COST.budget.map((v,i)=>`${pad.l+step*i+step/2},${Y(v)}`).join(' ');
+  s+=`<polyline points="${pts}" fill="none" stroke="#8C8497" stroke-width="1.6" stroke-dasharray="5 4" stroke-linejoin="round"/>`;
+  COST.budget.forEach((v,i)=>{
+    s+=`<circle cx="${pad.l+step*i+step/2}" cy="${Y(v)}" r="2.6" fill="#fff" stroke="#8C8497" stroke-width="1.4"><title>预算 $${v.toLocaleString()}</title></circle>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">${s}</svg>`;
+}
+
+function spark(vals, color, W, H){
+  W=W||96; H=H||28;
+  const min=Math.min(...vals), max=Math.max(...vals), rg=(max-min)||1;
+  const Y=v=>H-2-((v-min)/rg)*(H-6);
+  const pts=vals.map((v,i)=>`${(i/(vals.length-1))*W},${Y(v)}`).join(' ');
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="display:block;flex:0 0 auto">
+    <polygon points="0,${H} ${pts} ${W},${H}" fill="${color}" opacity=".10"/>
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${W}" cy="${Y(vals[vals.length-1])}" r="2.2" fill="${color}"/>
+  </svg>`;
+}
+
+function hbars(items, color){
+  const max=Math.max(...items.map(i=>i.v));
+  return items.map(i=>`
+    <div class="bar-row">
+      <div class="bar-lbl" title="${i.k}">${i.k}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(i.v/max*100).toFixed(1)}%;background:${i.c||color}"></div></div>
+      <div class="bar-val num">${money(i.v)}</div>
+    </div>`).join('');
+}
+
+/* 差异桥：以中线为 0，正向向右，负向向左 */
+function bridgeRow(k, v, note){
+  const maxAbs=900;
+  const w=Math.min(Math.abs(v)/maxAbs*50, 50);
+  const left=v>=0?50:50-w;
+  const col=v>=0?'#86997F':'#C08B7D';
+  return `<div class="bridge-row">
+    <div class="bridge-lbl">${k}</div>
+    <div class="bridge-track">
+      <div class="bridge-mid"></div>
+      <div class="bridge-bar" style="left:${left}%;width:${w}%;background:${col}"></div>
+    </div>
+    <div class="bridge-val num" style="color:${v>=0?'#5E7D57':'#B4664F'};font-weight:600">${v>0?'+':'−'}${money(Math.abs(v),{raw:1})}</div>
+    <div class="tiny muted" style="flex:0 0 196px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${note}">${note}</div>
+  </div>`;
+}
+
+function allocStep(s, total){
+  const p=s.v/total*100;
+  const last=s.k.indexOf('④')>=0;
+  return `<div class="bar-row">
+    <div class="bar-lbl" style="width:90px;flex:0 0 90px">${s.k}</div>
+    <div class="bar-track" style="height:20px;border-radius:5px">
+      <div class="bar-fill" style="width:${p.toFixed(1)}%;background:${last?'#D8C4B4':'#6B7F94'};border-radius:5px"></div>
+    </div>
+    <div class="bar-val num" style="width:104px;flex:0 0 104px">${money(s.v)} <span class="muted">${p.toFixed(1)}%</span></div>
+    <div class="tiny muted" style="flex:0 0 186px">${s.res} 个资源 · ${s.note}</div>
+  </div>`;
+}
+
+/* ============================================================
+   图谱几何：16 个节点 = 3 站 × 5 层 + 共享层竖带
+   ============================================================ */
+const COLX = {photos:158, management:382, platform:606};
+const NODEW = 200, NODEH = 64;
+const BANDY = {4:44, 3:138, 2:232, 1:326, 0:420};
+const LANE_DX = 14;
+
+function geoOf(id){
+  const n=NODE[id];
+  if(n.site==='s00-account') return [900, 44, 126, 462];
+  return [COLX[n.site], BANDY[n.L]+11, NODEW, NODEH];
+}
+const EV_COLOR = {'栈结构':'#8A9A86','remote_state':'#86997F','配置引用':'#A8907E','流量日志':'#7E9A99','标签推断':'#B0B5B9'};
+const GRAPH_TITLE={layer:'分层视图 · 站点与层',flow:'数据流视图 · 入口到存储',cost:'成本视图 · 钱压在哪一层'};
+const GRAPH_DESC={
+  layer:'节点 =（站点，层），共 16 个 · 实线 = 结构或 remote_state（1.00）· 虚线 = 配置引用（0.90）或流量推断（0.85）· 点线 = 弱推断（默认不画）',
+  flow:'只保留数据真正流经的边，基座层淡化 —— 回答「一次请求从入口到落盘经过谁」',
+  cost:'节点底色深浅与底部占比条映射月成本，只留结构关系 —— 回答「改哪一层的钱最贵」'
+};
+
+function relOf(id){
+  const rev={},fwd={};
+  EDGES.filter(e=>!e.weak).forEach(e=>{(rev[e.t]=rev[e.t]||[]).push(e.f);(fwd[e.f]=fwd[e.f]||[]).push(e.t);});
+  const bfs=(adj,limit)=>{const seen={[id]:0},q=[[id,0]],out=[];
+    while(q.length){const [n,d]=q.shift(); if(d>=limit) continue;
+      (adj[n]||[]).forEach(m=>{ if(seen[m]===undefined){seen[m]=d+1;q.push([m,d+1]);out.push([m,d+1]);} });}
+    return out;};
+  const imp=bfs(rev,3), dep=bfs(fwd,3);
+  return {imp,dep,
+    imp1:imp.filter(x=>x[1]===1).map(x=>x[0]),
+    imp2:imp.filter(x=>x[1]>1).map(x=>x[0]),
+    dep1:dep.filter(x=>x[1]===1).map(x=>x[0])};
+}
+
+function topoSvg(sel){
+  const view=state.graphView||'layer';
+  const maxCost=Math.max(...NODES.map(x=>x.cost));
+  const r=relOf(sel);
+  const near=new Set([sel,...r.imp1,...r.dep1]);
+  const siteOn = state.site==='ALL' ? null : state.site;
+  let s='';
+  LAYERS.forEach((L,i)=>{
+    s+=`<rect x="76" y="${L.y}" width="812" height="${BAND_H}" rx="8" fill="${i%2?'#FBFAF8':'#FFFFFF'}" stroke="#EDEAE4"/>`;
+    s+=`<text x="14" y="${L.y+26}" font-size="11" font-weight="600" fill="#8A9095">L${L.n}</text>`;
+    s+=`<text x="14" y="${L.y+40}" font-size="9.2" fill="#A9A49C">${L.id}</text>`;
+    s+=`<text x="14" y="${L.y+54}" font-size="9.2" fill="#C0BCB4">${L.cn}</text>`;
+  });
+  s+=`<rect x="900" y="44" width="126" height="462" rx="8" fill="#F3F1F5" stroke="#DAD4E0"/>`;
+  s+=`<text x="963" y="70" font-size="11" font-weight="600" fill="#5B5468" text-anchor="middle">S00 · 共享</text>`;
+  s+=`<text x="963" y="86" font-size="8.6" fill="#8C8497" text-anchor="middle">被 15 个层引用</text>`;
+
+  EDGES.forEach(e=>{
+    if(e.weak && !state.inferred) return;
+    if(view==='flow' && e.ev==='栈结构' && e.t.indexOf('00-bootstrap')>=0) return;
+    if(view==='cost' && e.ev==='流量日志') return;
+    const A=geoOf(e.f), B=geoOf(e.t);
+    const hot=(e.f===sel||e.t===sel);
+    const col=e.weak?'#B0B5B9':EV_COLOR[e.ev];
+    const dash=e.weak?'stroke-dasharray="2 3"':(e.c<=0.90?'stroke-dasharray="5 3"':'');
+    const mk=`marker-end="url(#tg-${hot?'h':'n'})"`;
+    const op=hot?1:(view==='cost'?0.2:0.34);
+    if(e.route==='left'){
+      const x0=A[0], y0=A[1]+A[3]/2;
+      const lane=x0-LANE_DX;
+      const x1=B[0], y1=B[1]+B[3]/2;
+      s+=`<path d="M${x0},${y0} H${lane} V${y1} H${x1}" fill="none" stroke="${col}"
+          stroke-width="${hot?2:1.2}" ${dash} opacity="${op}" ${mk}/>`;
+      return;
+    }
+    const x1=A[0]+A[2]/2, y1=A[1]+A[3], x2=B[0]+B[2]/2, y2=B[1]-1;
+    s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${hot?2:1.2}"
+        ${dash} opacity="${op}" ${mk}/>`;
+  });
+
+  NODES.forEach(n=>{
+    const g=geoOf(n.id);
+    const x=g[0], y=g[1], w=g[2], h=g[3];
+    const S=SITES[n.site];
+    const on=n.id===sel, near1=near.has(n.id);
+    const dim = siteOn && n.site!==siteOn && n.site!=='s00-account';
+    const strip = n.site==='s00-account';
+    const base = view==='flow' && n.L===0;
+    const heat = view==='cost' ? (0.45+0.55*(n.cost/maxCost)) : 1;
+    s+=`<g data-node="${n.id}" style="cursor:pointer" opacity="${dim?0.28:(base?0.3:(near1?heat:0.42*heat))}">
+      <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="7" fill="${S.bg}" stroke="${on?S.color:S.bd}" stroke-width="${on?2:1}"/>
+      <rect x="${x}" y="${y}" width="3.5" height="${h}" rx="1.75" fill="${S.color}"/>
+      <text x="${x+w/2}" y="${y+(strip?26:24)}" font-size="${strip?11:12.5}" font-weight="600" fill="#2E3134" text-anchor="middle">${strip?'s00-account':n.l}</text>
+      <text x="${x+w/2}" y="${y+(strip?42:40)}" font-size="${strip?8.4:9.6}" fill="${S.color}" text-anchor="middle">${strip?'组织 / 账号 / state':n.site+'/'+LAYERS.find(l=>l.n===n.L).id}</text>
+      ${strip
+        ? `<text x="${x+w/2}" y="${y+58}" font-size="8.2" fill="#A9A49C" text-anchor="middle">${n.res} 资源 · ${money(n.cost)}/月</text>
+           <text x="${x+11}" y="${y+96}" font-size="8.2" fill="#8C8497">· 组织与账号 vending</text>
+           <text x="${x+11}" y="${y+114}" font-size="8.2" fill="#8C8497">· Budgets 与告警</text>
+           <text x="${x+11}" y="${y+132}" font-size="8.2" fill="#8C8497">· tfstate 桶 + lease</text>
+           <text x="${x+11}" y="${y+150}" font-size="8.2" fill="#8C8497">· Key Vault</text>
+           <text x="${x+11}" y="${y+168}" font-size="8.2" fill="#8C8497">· Azure DNS</text>
+           <text x="${x+11}" y="${y+204}" font-size="8" fill="#B0A9BC">15 条 remote_state</text>
+           <text x="${x+11}" y="${y+218}" font-size="8" fill="#B0A9BC">不画线，避免糊成一片</text>`
+        : `<text x="${x+w/2}" y="${y+h-11}" font-size="9.2" fill="#A9A49C" text-anchor="middle">${n.res} 资源 · ${money(n.cost)}/月</text>
+           ${view==='cost'?`<rect x="${x+9}" y="${y+h-6}" width="${(w-18)*n.cost/maxCost}" height="3" rx="1.5" fill="${S.color}" opacity=".8"/>`:''}`}
+    </g>`;
+  });
+
+  return `<svg viewBox="0 0 1040 528" style="width:100%;height:auto;display:block">
+    <defs>
+      <marker id="tg-n" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#B0B5B9"/></marker>
+      <marker id="tg-h" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#6B7075"/></marker>
+    </defs>${s}
+    <text x="76" y="524" font-size="9.2" fill="#A9A49C">层号 = apply 顺序：自下而上（00 先、04 后）· 站点之间并行，站点之内串行 · 箭头方向为「依赖谁」</text>
+  </svg>`;
+}
+
+function nodeRow(n){
+  const on=n.id===state.sel;
+  const S=SITES[n.site];
+  const sub = n.site==='s00-account' ? '共享层' : n.site+'/'+LAYERS.find(l=>l.n===n.L).id;
+  return `<div data-node="${n.id}" style="display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px;cursor:pointer;
+      background:${on?'var(--blue-bg)':'transparent'};border:1px solid ${on?'var(--blue-bd)':'transparent'}">
+    <span style="width:3px;height:24px;border-radius:2px;background:${S.color}"></span>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:12px;font-weight:600">${n.site==='s00-account'?'s00-account':n.l}</div>
+      <div class="tiny muted">${sub}</div>
+    </div>
+    <span class="badge b-plain" style="font-size:9.5px;padding:0 6px">${n.res}</span>
+  </div>`;
+}
+
+/* ============================================================
+   页面：总览
+   ============================================================ */
+function pageOverview(){
+  const siteCost=[
+    {k:'photos',v:42100,c:'#6B7F94'},
+    {k:'management',v:6900,c:'#8A9A86'},
+    {k:'platform',v:12400,c:'#C08B7D'},
+    {k:'共享层',v:900,c:'#B9B3C2'}
+  ];
+  const over=pct(FORECAST-BUDGET,BUDGET);
+  const todo=[
+    {b:'b-p0',t:'P0',src:'漂移 · CRITICAL',title:'photos-raw 的 public access block 被关闭',
+     sub:'云上公开可读，期望 true 实际 false · 已持续 2 天',cta:'看 diff'},
+    {b:'b-p0',t:'P0',src:'安全 · 公网暴露面',title:'platform-pg 关闭了地域冗余备份',
+     sub:'与 02-data 期望状态不一致 · 1 项 CRITICAL 安全结论',cta:'查看结论'},
+    {b:'b-p1',t:'P1',src:'发布 · 待确认',title:'platform/03-compute 等待他人确认',
+     sub:'+1 ~2 · 风险中 · 提交人 chen.y',cta:'去确认'},
+    {b:'b-p2',t:'P2',src:'成本 · 未分配',title:'8 个资源未分配，占总成本 1.4%',
+     sub:'全部集中在 3 个未纳管资源 · 目标 &lt; 2%',cta:'生成补标签 PR'}
+  ];
+  const health=[
+    {k:'受管资源', v:TOTAL_RES, s:'4 站点 · 16 层', ok:true,  note:'—'},
+    {k:'漂移覆盖率', v:pct(DRIFT_COVER.checked,DRIFT_COVER.managed)+'%', s:'已对账 174 / 受管 184', ok:false, note:'低于 95%'},
+    {k:'CRITICAL 漂移', v:'2', s:'其中 1 项超 24 小时', ok:false, note:'需 5 分钟内确认'},
+    {k:'未分配成本', v:pct(UNALLOC,ALLOCATED)+'%', s:'目标 &lt; 2% · 已达标', ok:true,  note:'—'}
+  ];
+  return `
+  <div class="callout info" style="margin-bottom:14px">
+    <div style="flex:1">
+      <b>本月 ${money(MTD)}，月末预测 ${money(FORECAST)}（超预算 ${over}%）；4 个站点里 photos 占 ${pct(42100,TOTAL_LATEST)}%。</b>
+      未分配 ${pct(UNALLOC,ALLOCATED)}% 已达标，但漂移覆盖率 ${pct(DRIFT_COVER.checked,DRIFT_COVER.managed)}% 仍在 95% 以下，另有 2 项 CRITICAL 待确认。
+    </div>
+    <div class="tiny" style="white-space:nowrap">${BASIS_LABEL[state.basis]}<br>账单截止 11-14 · T+2</div>
+  </div>
+
+  <div class="grid g4">
+    ${kpi('本月累计成本（MTD）', money(MTD), `<span class="up">环比 +3.2%</span><span>·</span><span>预算使用 ${pct(MTD,BUDGET)}%</span>`)}
+    ${kpi('月末预测', money(FORECAST), `<span class="up">超预算 ${over}%</span><span>·</span><span>${BASIS_LABEL[state.basis]}</span>`)}
+    ${kpi('未分配成本', money(UNALLOC), `<span class="down">占比 ${pct(UNALLOC,ALLOCATED)}%</span><span>·</span><span>目标 &lt; 2%</span>`)}
+    ${kpi('CRITICAL 漂移', '2', `<span class="up">1 项超 24h</span><span>·</span><span>覆盖率 ${pct(DRIFT_COVER.checked,DRIFT_COVER.managed)}%</span>`)}
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-h">
+      <div><div class="card-t">成本趋势与预算 · 近 12 个月</div>
+      <div class="card-s">堆叠柱按站点拆分，虚线为预算线 —— 10 月起连续两个月越过预算</div></div>
+      <div class="legend">
+        <span><i style="background:#6B7F94"></i>photos</span>
+        <span><i style="background:#8A9A86"></i>management</span>
+        <span><i style="background:#C08B7D"></i>platform</span>
+        <span><i style="background:#B9B3C2"></i>共享层</span>
+        <span><i style="background:#8C8497"></i>预算</span>
+      </div>
+    </div>
+    <div class="card-b" style="padding:10px 16px 6px">${chartStacked()}</div>
+    <div class="card-b" style="border-top:1px solid var(--border-soft);display:flex;align-items:center;gap:22px;flex-wrap:wrap">
+      ${siteCost.map(c=>`<span style="display:flex;align-items:center;gap:7px">
+        <i style="width:7px;height:7px;border-radius:2px;background:${c.c}"></i>
+        <span style="font-size:12px;font-weight:600">${c.k}</span>
+        <span class="num" style="font-size:12px;font-weight:600">${money(c.v)}</span>
+        <span class="tiny muted num">${pct(c.v,TOTAL_LATEST)}%</span>
+      </span>`).join('<span style="width:1px;height:14px;background:var(--border)"></span>')}
+      <span class="grow"></span>
+      <span class="tiny muted">数据源：AWS 12 分钟前 · GCP 14 分钟前 · Azure 11 分钟前</span>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-h">
+      <div><div class="card-t">异常与待办</div>
+      <div class="card-s">左边是判定，右边是动作 —— 每条待办都能指回触发它的指标</div></div>
+      <span class="badge b-p0">2 项需今日确认</span>
+    </div>
+    <div class="card-b" style="display:grid;grid-template-columns:0.72fr 1.28fr;gap:0;padding:0">
+      <div style="padding:14px 18px;border-right:1px solid var(--border-soft)">
+        <div class="tiny muted" style="letter-spacing:.4px;margin-bottom:8px">治理指标</div>
+        ${health.map((h,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;${i===health.length-1?'':'border-bottom:1px solid var(--border-soft)'}">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px">${h.k}</div>
+            <div class="tiny muted">${h.s}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="num" style="font-size:14px;font-weight:600;color:${h.ok?'var(--ink)':'#A9715C'}">${h.v}</div>
+            <div class="tiny" style="color:${h.ok?'var(--ink4)':'#A9715C'}">${h.ok?'正常':h.note}</div>
+          </div>
+        </div>`).join('')}
+      </div>
+      <div>
+        <div class="tiny muted" style="letter-spacing:.4px;padding:14px 18px 0">待办 · 按优先级</div>
+        ${todo.map(t=>`<div class="item-row" style="align-items:flex-start;padding:12px 18px">
+          <span class="badge ${t.b}" style="margin-top:2px">${t.t}</span>
+          <div class="grow">
+            <div style="font-size:12.5px;font-weight:500">${t.title}</div>
+            <div class="tiny muted" style="margin-top:2px">${t.sub}</div>
+            <div class="tiny" style="margin-top:5px;color:var(--ink3)">触发自 <b style="color:var(--ink2)">${t.src}</b></div>
+          </div>
+          <button class="btn" style="align-self:center" data-noop="1">${t.cta}</button>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g-wide" style="margin-top:14px;align-items:start">
+    <div class="card">
+      <div class="card-h"><div><div class="card-t">成本花在哪 · 按层</div>
+      <div class="card-s">层号即 apply 顺序；03-compute 占 ${pct(22800,TOTAL_LATEST)}%，是唯一值得谈判的一块</div></div>
+      <button class="btn" data-page="cost">成本分析 ↗</button></div>
+      <div class="card-b">
+        ${hbars([
+          {k:'03-compute 计算',v:22800,c:'#6B7F94'},
+          {k:'02-data 数据',v:16100,c:'#7E93A8'},
+          {k:'01-storage 存储',v:11900,c:'#9EAEBE'},
+          {k:'04-edge 入口',v:6700,c:'#B0BECB'},
+          {k:'00-bootstrap 基座',v:3900,c:'#C4A08F'},
+          {k:'s00-account 共享',v:900,c:'#C9AE9C'}
+        ])}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><div class="card-t">能省多少 · 怎么省</div>
+      <div class="card-s">每条都给公式，代进数字能算出金额</div></div>
+      <span class="badge b-p2">预计 ${money(SAVING)}/月</span></div>
+      <div style="padding:2px 0">
+        ${optRow('闲置 EBS 卷 · 7 个', money(148), '7 × 500 GB × $0.08/GB·月')}
+        ${optRow('photos 处理层 CPU 12%', money(3200), '按目标 45% 折算：6 台 × $0.096/h × 730h')}
+        ${optRow('未挂载快照 · 12 个', money(340), '12 × 平均 180 GB × $0.023/GB·月')}
+        ${optRow('跨区复制流量', money(2100), '月均 18 TB × $0.12/GB 出口价')}
+      </div>
+      <div class="card-b" style="border-top:1px solid var(--border-soft);display:flex;gap:8px;align-items:center">
+        <button class="btn btn-primary" data-page="cost">看全部建议</button>
+        <span class="grow"></span>
+        <span class="tiny muted">不提供「一键执行」，只能看依据</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function kpi(label,val,foot){
+  return `<div class="card kpi">
+    <div class="kpi-l">${label}</div>
+    <div class="kpi-v num">${val}</div>
+    <div class="kpi-f">${foot}</div>
+  </div>`;
+}
+function optRow(t,v,s){
+  return `<div class="item-row" style="cursor:default">
+    <div class="grow"><div style="font-size:12.5px">${t}</div>
+    <div class="tiny muted" style="font-family:monospace">${s}</div></div>
+    <div style="text-align:right"><div class="down num" style="font-size:12.5px">${v}</div>
+    <div class="tiny muted">可节省</div></div>
+  </div>`;
+}
+
+/* ============================================================
+   页面：资源目录（列表 / 域树 / 按层）
+   ============================================================ */
+function pageCatalog(){
+  return `
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-b" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:13px 16px">
+      <div class="seg" id="catView">
+        ${[['list','列表'],['tree','域树'],['layer','按层']].map(v=>
+          `<button data-view="${v[0]}" class="${state.catView===v[0]?'on':''}">${v[1]}</button>`).join('')}
+      </div>
+      <input id="resSearch" placeholder="搜索资源名 / 类型 / 标签…" value="${state.q}"
+        style="flex:1;min-width:180px;border:1px solid var(--border);border-radius:8px;padding:7px 11px;font:inherit;font-size:12.5px;outline:none;background:#fff">
+      <div style="display:flex;gap:6px" id="siteChips">
+        ${['ALL','photos','management','platform','s00-account'].map(c=>
+          `<button class="chip ${state.site===c?'on':''}" data-site="${c}">${c==='ALL'?'全部站点':c}</button>`).join('')}
+      </div>
+      <div style="display:flex;gap:6px" id="cloudChips">
+        ${['ALL','AWS','GCP','AZURE'].map(c=>
+          `<button class="chip ${state.cloud===c?'on':''}" data-cloud="${c}">${c==='ALL'?'全部云':c}</button>`).join('')}
+      </div>
+      <span class="tiny muted" id="resCount"></span>
+    </div>
+  </div>
+  <div id="catBody">${catBody()}</div>`;
+}
+
+function catBody(){
+  if(state.catView==='tree') return treeView();
+  if(state.catView==='layer') return layerView();
+  return listView();
+}
+function syncCount(){
+  const el=document.getElementById('resCount');
+  if(!el) return;
+  el.textContent='命中 '+filteredRes().length+' / 全部 '+RESOURCES.length+' · 全量 '+(TOTAL_RES+3)+' 条';
+}
+
+/* ---------- 视图 1：列表 ---------- */
+function listView(){
+  return `<div class="card"><div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr>
+        <th class="sortable" data-sort="n">资源 / 类型</th>
+        <th>云 / 账号</th>
+        <th class="sortable" data-sort="canon">canonical 类型</th>
+        <th class="sortable" data-sort="layer">站点 / 层</th>
+        <th>状态</th>
+        <th class="sortable r" data-sort="c">月成本</th>
+        <th class="sortable r" data-sort="d">漂移</th>
+        <th class="sortable" data-sort="at">最近采集</th>
+      </tr></thead>
+      <tbody id="resBody">${resRows()}</tbody>
+    </table>
+  </div></div>`;
+}
+
+/* ---------- 视图 2：域树（云 → 账号 → 站点 → 层 → 资源） ---------- */
+function treeView(){
+  const list=filteredRes();
+  const clouds={};
+  list.forEach(r=>{
+    const c=clouds[r.p]=clouds[r.p]||{};
+    const a=c[r.a]=c[r.a]||{};
+    const s=a[r.site]=a[r.site]||{};
+    (s[r.layer]=s[r.layer]||[]).push(r);
+  });
+  const open=k=>state.tree[k]===true;
+  const sum=rs=>rs.reduce((a,b)=>a+b.c,0);
+  let out='';
+  Object.keys(clouds).sort().forEach(cl=>{
+    const accts=clouds[cl];
+    const cAll=Object.keys(accts).flatMap(a=>Object.keys(accts[a]).flatMap(s=>Object.keys(accts[a][s]).flatMap(l=>accts[a][s][l])));
+    out+=treeRow(0,cl,cl+' · '+cAll.length+' 个资源 · 账号 '+Object.keys(accts).length,money(sum(cAll)),!open(cl),cl,false,'#8A9095');
+    if(!open(cl)) return;
+    Object.keys(accts).sort().forEach(ac=>{
+      const sites=accts[ac];
+      const aAll=Object.keys(sites).flatMap(s=>Object.keys(sites[s]).flatMap(l=>sites[s][l]));
+      const k1=cl+'|'+ac;
+      out+=treeRow(1,ac,ac+' · '+aAll.length+' 个资源',money(sum(aAll)),!open(k1),k1,false,'#A8907E');
+      if(!open(k1)) return;
+      Object.keys(sites).sort().forEach(st=>{
+        const layers=sites[st];
+        const sAll=Object.keys(layers).flatMap(l=>layers[l]);
+        const S=SITES[st]||{color:'#8A9095',n:st,plane:'—',clouds:'—'};
+        out+=treeRow(2,st+' · '+S.n,S.plane+' 平面 · '+S.clouds,money(sum(sAll)),false,null,true,S.color);
+        Object.keys(layers).sort().reverse().forEach(ly=>{
+          const rs=layers[ly];
+          out+=treeRow(3,ly,rs.length+' 个资源',money(sum(rs)),false,null,true,S.color);
+          rs.forEach(r=>{
+            out+=`<div class="tree-row" data-res="${RESOURCES.indexOf(r)}" style="padding-left:96px">
+              <span class="caret"></span>
+              <div class="grow" style="font-size:12px">${r.n}
+                <span class="tiny muted" style="margin-left:6px">${r.t}${r.tf==='—'?' · 未纳管':''}</span></div>
+              <span class="num tiny muted" style="width:82px;text-align:right">${r.c?money(r.c):'—'}</span>
+            </div>`;
+          });
+        });
+      });
+    });
+  });
+  return `<div class="card">${out||'<div class="card-b tiny muted">没有匹配的资源</div>'}</div>`;
+}
+
+function treeRow(depth, name, sub, cost, collapsed, key, noToggle, color){
+  const pad=16+depth*22;
+  return `<div class="tree-row" ${key?`data-tree="${key}"`:''} style="padding-left:${pad}px">
+    <span class="caret">${noToggle?'':(collapsed?'▸':'▾')}</span>
+    <span style="width:3px;height:16px;border-radius:2px;background:${color||'#8A9095'}"></span>
+    <div class="grow"><span style="font-size:${depth<2?12.5:12}px;font-weight:${depth<2?600:500}">${name}</span>
+      <span class="tiny muted" style="margin-left:7px">${sub}</span></div>
+    <span class="num tiny" style="width:86px;text-align:right;color:var(--ink2)">${cost}</span>
+  </div>`;
+}
+
+/* ---------- 视图 3：按层 ---------- */
+function layerView(){
+  const list=filteredRes();
+  const cards=NODES.filter(n=>state.site==='ALL'||n.site===state.site).map(n=>{
+    const layerId = n.site==='s00-account' ? 's00-account' : LAYERS.find(l=>l.n===n.L).id;
+    const rs=list.filter(r=>r.site===n.site && r.layer===layerId);
+    if(!rs.length) return '';
+    const S=SITES[n.site];
+    const cost=rs.reduce((a,b)=>a+b.c,0);
+    const drift=rs.filter(r=>r.d>0).length;
+    const untag=rs.filter(r=>!r.tags).length;
+    const up=EDGES.filter(e=>e.t===n.id&&!e.weak).length;
+    const down=EDGES.filter(e=>e.f===n.id&&!e.weak).length;
+    return `<div class="card" style="padding:15px 17px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+        <div>
+          <div style="font-size:13.5px;font-weight:600">${n.l}</div>
+          <div class="tiny muted" style="margin-top:2px">${n.site}/${layerId} · ${n.t}</div>
+        </div>
+        <span class="badge" style="background:${S.bg};color:${S.color};border-color:${S.bd}">${S.plane}</span>
+      </div>
+      <div style="display:flex;gap:18px;margin:12px 0 10px">
+        <div><div class="tiny muted">月成本</div><div class="num" style="font-size:15px;font-weight:600">${money(cost)}</div></div>
+        <div><div class="tiny muted">资源</div><div class="num" style="font-size:15px;font-weight:600">${rs.length}</div></div>
+        <div><div class="tiny muted">漂移</div><div class="num" style="font-size:15px;font-weight:600;color:${drift?'#B4664F':'var(--ink)'}">${drift}</div></div>
+        <div><div class="tiny muted">上游 / 下游</div><div class="num" style="font-size:15px;font-weight:600">${up} / ${down}</div></div>
+      </div>
+      <div style="border-top:1px solid var(--border-soft);padding-top:9px">
+        ${[...new Set(rs.map(r=>r.canon))].slice(0,5).map(c=>`<span class="tag">${c}</span>`).join('')}
+      </div>
+      ${untag?`<div class="tiny" style="margin-top:8px;color:#A9715C">${untag} 个资源无标签 · 成本无法按规则分摊</div>`:''}
+    </div>`;
+  }).filter(Boolean);
+  return `<div class="grid g3">${cards.join('')||'<div class="card card-b tiny muted">没有匹配的资源</div>'}</div>`;
+}
+
+function filteredRes(){
+  let list=RESOURCES.slice();
+  if(state.site!=='ALL') list=list.filter(r=>r.site===state.site);
+  if(state.cloud!=='ALL') list=list.filter(r=>r.p===state.cloud);
+  if(state.q){
+    const q=state.q.toLowerCase();
+    list=list.filter(r=>{
+      const tagStr=r.tags?Object.keys(r.tags).map(k=>k+'='+r.tags[k]).join(' '):'';
+      return (r.n+' '+r.t+' '+r.p+' '+r.a+' '+r.site+' '+r.layer+' '+tagStr).toLowerCase().includes(q);
+    });
+  }
+  const k=state.sort.k, d=state.sort.d==='asc'?1:-1;
+  list.sort((a,b)=>{
+    if(k==='c'||k==='d') return (a[k]-b[k])*d;
+    return String(a[k]||'').localeCompare(String(b[k]||''))*d;
+  });
+  return list;
+}
+
+function resRows(){
+  const list=filteredRes();
+  if(!list.length) return `<tr><td colspan="8" style="text-align:center;padding:36px;color:#A9A49C">没有匹配的资源</td></tr>`;
+  return list.map(r=>{
+    return `<tr data-res="${RESOURCES.indexOf(r)}" ${!r.canon?'style="opacity:.62"':''}>
+      <td><div class="name">${r.n}</div><div class="sub">${r.t}</div></td>
+      <td><div style="font-size:12px">${r.p}</div><div class="sub">${r.a}</div></td>
+      <td>${!r.canon?'<span class="badge b-plain">未映射</span>':`<span class="tiny" style="font-family:monospace;color:var(--ink2)">${r.canon}</span>`}</td>
+      <td><div style="font-size:12px">${r.site}</div><div class="sub">${r.layer}</div></td>
+      <td>${r.tf==='—'
+        ? '<span class="badge b-p1">未纳管</span>'
+        : `<span class="badge ${r.cloud==='prod'?'b-info':'b-plain'}">${r.cloud}</span>`}</td>
+      <td class="r num">${r.c?money(r.c):'—'}</td>
+      <td class="r">${r.d?`<span class="badge b-p1">${r.d}</span>`:'<span class="tiny muted">—</span>'}</td>
+      <td><span class="tiny muted">${r.at}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function openResource(idx){
+  const r=RESOURCES[idx];
+  if(!r) return;
+  const tags = !r.tags
+    ? `<span class="tiny" style="color:#B4664F">该资源缺少全部规范标签（cost-center / site / layer / owner）</span>`
+    : `<div class="tiny muted" style="margin-bottom:6px">规范标签</div>
+       ${['cost-center','site','layer','owner'].map(k=>`<span class="tag">${k}: ${r.tags[k]||'缺失'}</span>`).join('')}
+       <div class="tiny muted" style="margin:10px 0 6px">原始标签</div>
+       <span class="tag">aws:createdBy=IAMUser/lin.w</span><span class="tag">terraform=true</span>`;
+  const hist = [
+    ['2026-11-16 03:02','采集','tags.owner','—  →  '+(r.tags?r.tags.owner:'—')],
+    ['2026-11-14 21:40','lin.w','public_access_block.block_public_acls','true  →  false'],
+    ['2026-11-02 10:12','ci-bot','instance_type','t3.large  →  t3.xlarge']
+  ];
+  document.getElementById('drawer').innerHTML=`
+    <div class="drawer-h" style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <div><div style="font-size:15px;font-weight:600">${r.n}</div>
+      <div class="tiny muted" style="margin-top:2px">${r.p} · ${r.t} · ${r.r}</div></div>
+      <button class="close" data-close="1">×</button>
+    </div>
+    <div class="drawer-b">
+      <div class="grid g2" style="margin-bottom:16px">
+        <div><div class="tiny muted">本月成本（${BASIS_LABEL[state.basis]}）</div>
+        <div style="font-size:20px;font-weight:600" class="num">${r.c?money(r.c):'该资源未出账'}</div></div>
+        <div><div class="tiny muted">未关闭漂移</div>
+        <div style="margin-top:4px">${r.d?`<span class="badge b-p1">${r.d} 条</span>`:'<span class="badge b-p2">0 条</span>'}</div></div>
+      </div>
+      <div class="kv"><div class="kv-k">云 / 账号</div><div class="kv-v">${r.p} · ${r.a}</div></div>
+      <div class="kv"><div class="kv-k">区域 / metro</div><div class="kv-v">${r.r} · ${r.r==='japaneast'?'japaneast-1':(r.r==='global'?'global':'ap-northeast-1a')}</div></div>
+      <div class="kv"><div class="kv-k">站点 / 层</div><div class="kv-v">${r.site} · ${r.layer}</div></div>
+      <div class="kv"><div class="kv-k">canonical 类型</div><div class="kv-v" style="font-family:monospace;font-size:11.5px">${r.canon||'未映射'}</div></div>
+      <div class="kv"><div class="kv-k">Terraform 地址</div><div class="kv-v" style="font-family:monospace;font-size:11.5px">${r.tf}</div></div>
+      <div class="kv"><div class="kv-k">成本（近 3 月）</div><div class="kv-v">${spark([Math.round(r.c*0.92),Math.round(r.c*0.97),r.c],'#6B7F94',120,30)}</div></div>
+
+      <div style="margin:18px 0 8px" class="tiny muted">标签</div>
+      <div>${tags}</div>
+
+      <div style="margin:18px 0 8px" class="tiny muted">属性变更历史 · 最近 3 次 <span style="color:var(--ink4)">（来源：云 API 审计）</span></div>
+      ${hist.map(h=>`<div style="display:flex;gap:9px;padding:5px 0;border-bottom:1px solid var(--border-soft)">
+        <span class="tiny muted num" style="flex:0 0 106px">${h[0]}</span>
+        <span class="tiny" style="flex:0 0 58px">${h[1]}</span>
+        <span class="tiny" style="flex:1;min-width:0"><span style="font-family:monospace">${h[2]}</span>
+        <span style="color:var(--ink3)"> ${h[3]}</span></span>
+      </div>`).join('')}
+
+      <div class="callout" style="margin-top:18px">
+        <div>${r.tf==='—'
+          ? '该资源未纳入 Terraform 管理，既是漂移来源，也是成本漏归因的来源。建议生成 import PR 纳管。'
+          : '期望状态来自 Terraform，每日 03:00 由通道 A 对账。任何修复动作都以 PR 形式提交，平台不直接改云上资源。'}</div>
+      </div>
+
+      <div style="display:flex;gap:9px;margin-top:18px;flex-wrap:wrap">
+        <button class="btn btn-primary" data-noop="1">在云控制台打开 ↗</button>
+        <button class="btn" data-noop="1">查看 Terraform 代码</button>
+        <button class="btn" data-noop="1">生成补标签 PR</button>
+      </div>
+    </div>`;
+  document.getElementById('drawer').classList.add('on');
+  document.getElementById('scrim').classList.add('on');
+}
+
+/* ============================================================
+   页面：栈图谱
+   ============================================================ */
+function pageGraph(){
+  const sel=state.sel||'photos/01-storage';
+  const n=NODE[sel], r=relOf(sel);
+  const S=SITES[n.site];
+  const drawn=EDGES.filter(e=>!e.weak).length;
+  const weak=EDGES.filter(e=>e.weak).length;
+  const struct=EDGES.filter(e=>!e.weak&&(e.ev==='栈结构'||e.ev==='remote_state')).length;
+  const myEdges=EDGES.filter(e=>e.f===sel||e.t===sel);
+  return `
+  <div class="card" style="padding:11px 18px;display:flex;align-items:center;gap:26px;flex-wrap:wrap">
+    <div style="font-size:12px;font-weight:600;color:var(--ink2)">图谱健康度</div>
+    ${[['节点',NODES.length+' 个'],['已画关系',drawn+' 条'],['结构 / remote_state',struct+' 条'],
+       ['孤立节点','0'],['断边','0'],['覆盖层','16 / 16'],['未归类资源','3 个']]
+      .map(([k,v])=>`<div style="display:flex;align-items:center;gap:7px">
+        <span class="tiny muted">${k}</span><span class="num" style="font-weight:600;font-size:13px">${v}</span></div>`)
+      .join('<span style="width:1px;height:14px;background:var(--border)"></span>')}
+    <span class="grow"></span>
+    <span class="tiny muted">覆盖不全的图谱给出的「影响面」是错的 —— 而错误的结论比没有结论更危险</span>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-h">
+      <div><div class="card-t">${GRAPH_TITLE[state.graphView]}</div>
+      <div class="card-s">${GRAPH_DESC[state.graphView]}</div></div>
+      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+        <div class="seg" id="graphView">
+          ${[['layer','分层'],['flow','数据流'],['cost','成本']].map(v=>
+            `<button data-gview="${v[0]}" class="${state.graphView===v[0]?'on':''}">${v[1]}</button>`).join('')}
+        </div>
+        <div class="legend">
+          <span><i style="background:#6B7F94"></i>DATA</span>
+          <span><i style="background:#8A9A86"></i>OBS</span>
+          <span><i style="background:#C08B7D"></i>CONTROL</span>
+          <span><i style="background:#8C8497"></i>共享</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-b" style="padding:10px 14px 4px">${topoSvg(sel)}</div>
+    <div class="card-b" style="border-top:1px solid var(--border-soft);display:flex;gap:18px;flex-wrap:wrap;align-items:center">
+      <span class="tiny" style="color:var(--ink2);font-weight:600">关系从哪来</span>
+      ${[['① 栈结构','目录声明依赖','1.00','#8A9A86'],['② remote_state','跨层输出引用','1.00','#86997F'],
+         ['③ 配置引用','origin / endpoint','0.90','#A8907E'],['④ 流量日志','Flow Logs 命中','0.85','#7E9A99'],
+         ['⑤ 标签推断','仅标签相同','0.70','#B0B5B9']]
+        .map(([a,b,c,col])=>`<span style="display:flex;align-items:center;gap:6px">
+          <i style="width:7px;height:7px;border-radius:2px;background:${col}"></i>
+          <span class="tiny" style="color:var(--ink2)">${a}</span>
+          <span class="tiny muted">${b}</span>
+          <span class="num tiny" style="font-weight:600;color:${col}">${c}</span></span>`).join('')}
+      <span class="grow"></span>
+      <button class="chip ${state.inferred?'on':''}" data-inferred="1">
+        ${state.inferred?'收起弱推断（'+weak+' 条）':'展开 '+weak+' 条推断关系'}
+      </button>
+    </div>
+  </div>
+
+  <div class="grid" style="grid-template-columns:308px 1fr;margin-top:14px;align-items:start">
+    <div class="card">
+      <div class="card-h" style="padding:12px 16px"><div class="card-t">选择节点</div>
+        <span class="tiny muted">${NODES.length} 个</span></div>
+      <div class="card-b" style="padding:6px 8px;max-height:560px;overflow:auto">
+        ${LAYERS.map(L=>{
+          const ns=NODES.filter(x=>x.L===L.n && (state.site==='ALL'||x.site===state.site));
+          if(!ns.length) return '';
+          return `<div class="tiny muted" style="padding:8px 9px 4px;letter-spacing:.4px">L${L.n} · ${L.id} ${L.cn}</div>
+            ${ns.map(nodeRow).join('')}`;
+        }).join('')}
+        ${state.site==='ALL'?`<div class="tiny muted" style="padding:8px 9px 4px;letter-spacing:.4px">共享</div>
+          ${NODES.filter(x=>x.site==='s00-account').map(nodeRow).join('')}`:''}
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card">
+        <div class="card-h">
+          <div><div class="card-t">${n.site==='s00-account'?'s00-account · 共享层':n.l}</div>
+          <div class="card-s">${n.site==='s00-account'?'s00-account':n.site+'/'+LAYERS.find(l=>l.n===n.L).id} · ${S.n} · ${n.t} · ${S.clouds}</div></div>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+            <span class="badge" style="background:${S.bg};color:${S.color};border-color:${S.bd}">${S.plane}</span>
+            <span class="badge b-plain">${n.res} 个资源</span>
+            <span class="badge b-plain">${money(n.cost)}/月</span>
+            ${n.site==='s00-account'?`<span class="badge b-lilac">${SHARED_REFS} 条引用</span>`:''}
+          </div>
+        </div>
+        <div class="card-b" style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <div>
+            <div class="tiny muted" style="margin-bottom:6px">改它会炸谁 <span style="color:#A9715C">（反向 · 谁依赖我）</span></div>
+            ${r.imp1.length?`<div style="font-size:12px;font-weight:600;color:#8A5C4E;margin-bottom:4px">直接 ${r.imp1.length}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px">${r.imp1.map(i=>`<span class="badge b-p0">${NODE[i].l}</span>`).join('')}</div>`:'<div class="tiny muted">无站内上游（只被共享层与本层内部依赖）</div>'}
+            ${r.imp2.length?`<div class="tiny muted" style="margin:9px 0 4px">间接 ${r.imp2.length}（三跳内）</div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px">${r.imp2.map(i=>`<span class="badge b-p1">${NODE[i].l}</span>`).join('')}</div>`:''}
+          </div>
+          <div>
+            <div class="tiny muted" style="margin-bottom:6px">它依赖谁 <span class="muted">（正向 · 我读谁）</span></div>
+            ${r.dep1.length?`<div style="display:flex;flex-wrap:wrap;gap:5px">${r.dep1.map(i=>`<span class="badge b-info">${NODE[i].l}</span>`).join('')}</div>`:'<div class="tiny muted">无下游依赖（叶子节点）</div>'}
+            <div class="tiny muted" style="margin:10px 0 5px">边的证据 · 每条都能指回文件或配置项</div>
+            ${myEdges.length?myEdges.slice(0,5).map(e=>`<div class="tiny" style="display:flex;gap:7px;padding:3px 0;border-bottom:1px solid var(--border-soft)">
+              <span class="mono" style="flex:0 0 78px;color:var(--ink3)">${e.ev}</span>
+              <span class="num" style="font-weight:600;color:${e.c>=0.95?'#5E7D57':'#9A7B4F'}">${e.c.toFixed(2)}</span>
+              <span class="muted" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${e.why}">${e.why}</span>
+              <span class="mono" style="color:var(--ink4)">${e.src||'仅标签'}</span>
+            </div>`).join(''):'<div class="tiny muted">该层没有站内边 —— 只通过 remote_state 读取共享层输出</div>'}
+          </div>
+        </div>
+        <div class="card-b" style="border-top:1px solid var(--border-soft);display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-primary" data-noop="1">生成变更影响报告</button>
+          <button class="btn" data-noop="1">附到 Terraform PR</button>
+          <button class="btn" data-noop="1">在云控制台查看 ↗</button>
+          <span class="grow"></span>
+          <span class="tiny muted">${r.imp1.length} 个直接上游 → 发布门禁会要求额外审批</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><div><div class="card-t">影响面链路</div>
+        <div class="card-s">从被改节点反向走到入口 —— 这条链就是「故障定界」和「通知谁」的依据</div></div></div>
+        <div class="card-b" style="padding:10px 18px 16px">
+          ${chainHtml(sel)}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function chainHtml(sel){
+  const r=relOf(sel);
+  const node=NODE[sel];
+  const rows=[`<div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">
+    <span class="badge b-plain" style="min-width:56px;justify-content:center">${node.site==='s00-account'?'S00':'L'+node.L}</span>
+    <span style="font-size:13px;font-weight:600">${node.site==='s00-account'?'s00-account':node.l}</span>
+    <span class="tiny muted">被修改</span></div>`];
+  if(!r.imp.length){
+    rows.push('<div class="tiny muted">没有站内节点依赖它 —— 但它通过 remote_state 被所有站点读取，影响面在共享层</div>');
+    return rows.join('');
+  }
+  const byDepth={};
+  r.imp.forEach(([id,d])=>{(byDepth[d]=byDepth[d]||[]).push(id);});
+  Object.keys(byDepth).sort().forEach(d=>{
+    rows.push(`<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:9px;padding-left:${d*22}px">
+      <span class="tiny muted" style="flex:0 0 22px">↖</span>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${byDepth[d].map(id=>`<span class="badge ${d==1?'b-p0':'b-p1'}">${NODE[id].l}</span>`).join('')}
+      </div>
+      <span class="tiny muted">${d==1?'直接影响':'第 '+d+' 跳'}</span></div>`);
+  });
+  return rows.join('');
+}
+
+/* ============================================================
+   页面：成本
+   ============================================================ */
+function pageCost(){
+  const bridgeSum=BRIDGE.reduce((a,b)=>a+b.v,0);
+  const gap=BILLED-ALLOCATED;
+  const resid=gap-bridgeSum;
+  const allocSum=ALLOC_STEPS.reduce((a,b)=>a+b.v,0);
+  const siteBars=[
+    {k:'photos',v:42100,c:'#6B7F94'},
+    {k:'platform',v:12400,c:'#C08B7D'},
+    {k:'management',v:6900,c:'#8A9A86'},
+    {k:'共享层',v:900,c:'#B9B3C2'}
+  ];
+  return `
+  <div class="callout info" style="margin-bottom:14px">
+    <div style="flex:1">
+      <b>当前口径：${BASIS_LABEL[state.basis]}</b> · ${BASIS_NOTE[state.basis]}。
+      账单口径 = 当期开票；摊销口径 = RI/SP 预付按使用期分摊；分摊后 = 再分配共享成本（内部结算）。
+      <span class="muted">分摊只改变归属，不改变总额。</span>
+    </div>
+    <div class="tiny" style="white-space:nowrap">汇率 USD→CNY 7.12<br>精度：汇总</div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:0">
+    ${[['BILLED 账单','当期开票 · 财务付款与对账','#9EAEBE'],
+       ['AMORTIZED 摊销','RI/SP 预付按使用期分摊','#86997F'],
+       ['ALLOCATED 分摊','共享成本再分配 · 内部结算','#C4A08F']]
+      .map(([k,v,c],i)=>`<div style="padding:13px 18px;${i?'border-left:1px solid var(--border-soft)':''}">
+        <div style="display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:2px;background:${c}"></span>
+        <span style="font-size:12.5px;font-weight:600">${k}</span></div>
+        <div class="tiny muted" style="margin-top:3px">${v}</div></div>`).join('')}
+    <div style="padding:13px 18px;border-left:1px solid var(--border-soft);background:#FBF8F4">
+      <div class="tiny" style="color:#8A5C4E;font-weight:600">数据延迟</div>
+      <div class="tiny" style="color:#A9715C;margin-top:3px">账单 T+2 · 监控实时<br>两者不可混用</div>
+    </div>
+  </div>
+
+  <div class="grid g4">
+    ${kpi('本月累计', money(MTD), `<span class="up">环比 +3.2%</span><span>·</span><span>预算使用 ${pct(MTD,BUDGET)}%</span>`)}
+    ${kpi('月末预测', money(FORECAST), `<span class="up">超预算 ${pct(FORECAST-BUDGET,BUDGET)}%</span><span>·</span><span>${BASIS_LABEL[state.basis]}</span>`)}
+    ${kpi('未分配占比', pct(UNALLOC,ALLOCATED)+'%', `<span class="down">已达标</span><span>·</span><span>目标 &lt; 2%</span>`)}
+    ${kpi('RI / SP 覆盖率', '41%', `<span class="up">低于 70% 基准</span><span>·</span><span>可省 ${money(6800)}/月</span>`)}
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-h">
+      <div><div class="card-t">成本趋势与预算</div>
+      <div class="card-s">2025-12 至 2026-11 · 切换口径时 X 轴刻度不动，只重绘 Y 轴</div></div>
+      <div class="legend">
+        <span><i style="background:#6B7F94"></i>photos</span>
+        <span><i style="background:#8A9A86"></i>management</span>
+        <span><i style="background:#C08B7D"></i>platform</span>
+        <span><i style="background:#8C8497"></i>预算</span>
+      </div>
+    </div>
+    <div class="card-b" style="padding:10px 16px 6px">${chartStacked()}</div>
+  </div>
+
+  <h3 class="sec">差异桥 · 从发票口径到分摊口径</h3>
+  <div class="card">
+    <div class="card-h">
+      <div><div class="card-t">五类差额逐项解释</div>
+      <div class="card-s">BILLED ${money(BILLED)} → ALLOCATED ${money(ALLOCATED)} · 差额 ${money(gap)} · 五类之和 ${money(bridgeSum)}</div></div>
+      <span class="badge ${resid===0?'b-p2':'b-p0'}">${resid===0?'已完全解释':'未完全解释 · 残差 '+money(resid)}</span>
+    </div>
+    <div class="card-b" style="padding:12px 18px 6px">
+      ${BRIDGE.map(b=>bridgeRow(b.k,b.v,b.note)).join('')}
+    </div>
+    <div class="card-b" style="border-top:1px solid var(--border-soft);display:flex;gap:22px;flex-wrap:wrap;align-items:center">
+      <span class="tiny muted">① 五类之和必须等于差额，不等时显式提示残差，不静默通过</span>
+      <span class="tiny muted">② 每类可展开到构成它的账单行</span>
+      <span class="grow"></span>
+      <button class="btn" data-noop="1">导出对账明细</button>
+    </div>
+  </div>
+
+  <h3 class="sec">分摊四步 · 不可跳步</h3>
+  <div class="grid g-wide" style="align-items:start">
+    <div class="card">
+      <div class="card-h"><div><div class="card-t">每步覆盖多少、落到哪</div>
+      <div class="card-s">四步金额之和 = 当期总额 ${money(allocSum)} · 未分配单独一行，不摊进任何分组</div></div></div>
+      <div class="card-b" style="padding:10px 18px 14px">
+        ${ALLOC_STEPS.map(s=>allocStep(s,allocSum)).join('')}
+        <div class="tiny muted" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border-soft)">
+          规则版本 v3（2026-10-01 生效）· 历史账期仍按当时版本可查
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><div class="card-t">按站点归因</div><div class="card-s">归因优先级：资源直挂 → 标签 → 域树 → 未分配</div></div></div>
+      <div class="card-b">${hbars(siteBars)}</div>
+      <div class="card-b" style="border-top:1px solid var(--border-soft)">
+        <div class="bar-row">
+          <div class="bar-lbl">未分配（单列）</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${(UNALLOC/42100*100).toFixed(1)}%;background:#D8C4B4"></div></div>
+          <div class="bar-val num">${money(UNALLOC)}</div>
+        </div>
+        <div class="tiny muted" style="margin-top:6px">即使为 0 也显示 0.0%，不隐藏 —— 否则分母会被悄悄改小</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sec">未分配成本 · 责任归属与推动闭环</h3>
+  <div class="grid g-wide">
+    <div class="card">
+      <div class="card-h"><div><div class="card-t">按资源列出</div>
+      <div class="card-s">共 ${money(UNALLOC)} · 占 ${pct(UNALLOC,ALLOCATED)}% · 目标 &lt; 2%</div></div>
+      <button class="btn" data-noop="1">批量生成补标签 PR</button></div>
+      <div class="tbl-wrap" style="max-height:none">
+        <table class="tbl">
+          <thead><tr><th>资源</th><th>站点</th><th>责任团队</th><th class="r">未分配</th><th>原因</th><th>建议动作</th></tr></thead>
+          <tbody>
+            ${UNALLOC_ROWS.map(u=>`<tr style="cursor:default">
+              <td><span class="name" style="font-size:12.5px">${u.n}</span></td>
+              <td class="tiny muted">${u.site}</td>
+              <td class="tiny">${u.ow}</td>
+              <td class="r num">${money(u.v)}</td>
+              <td class="tiny muted">${u.why}</td>
+              <td><span class="badge b-p1">${u.act}</span></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><div class="card-t">补标签推进</div>
+      <div class="card-s">左边列问题，这里列动作与可验证的效果</div></div>
+      <span class="badge b-p2">目标 2%</span></div>
+      <div class="card-b">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px">
+          <div><div class="tiny muted">未分配成本 · 近 8 周</div>
+            <div class="num" style="font-size:22px;font-weight:600;margin-top:2px">${money(UNALLOC)}</div></div>
+          ${spark([2140,1980,1820,1610,1420,1180,1010,890],'#C4A08F',120,44)}
+        </div>
+        <div style="display:flex;gap:18px;margin-top:14px">
+          <div><div class="tiny muted">已生成 PR</div><div class="num" style="font-weight:600">5 个</div></div>
+          <div><div class="tiny muted">已合并</div><div class="num" style="font-weight:600">3 个</div></div>
+          <div><div class="tiny muted">已归位金额</div><div class="num" style="font-weight:600;color:#5E7D57">${money(1250)}</div></div>
+        </div>
+        <div class="tiny muted" style="margin-top:12px;padding-top:11px;border-top:1px solid var(--border-soft);line-height:1.7">
+          其中 ${money(628)} 来自 3 个未纳管资源 —— 补标签前要先决定「纳管还是回收」，这两条路对应两种 PR。
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-primary" data-noop="1">生成剩余 2 个 PR</button>
+          <button class="btn" data-noop="1">查看归位明细</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sec">预算执行</h3>
+  <div class="card"><div class="card-b" style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+    ${budgetBar('photos',42100,43000)}
+    ${budgetBar('platform',12400,13000)}
+    ${budgetBar('management',6900,7000)}
+    ${budgetBar('共享层',900,1000)}
+  </div></div>`;
+}
+
+function budgetBar(k,v,b){
+  const p=v/b*100, over=p>100;
+  return `<div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
+      <span>${k}</span>
+      <span class="num ${over?'up':''}" style="font-weight:600">${money(v)} <span class="muted" style="font-weight:400">/ ${money(b)}</span></span>
+    </div>
+    <div class="bar-track" style="height:8px">
+      <div class="bar-fill" style="width:${Math.min(p,100)}%;background:${over?'#C08B7D':'#86997F'}"></div>
+    </div>
+    <div class="tiny muted" style="margin-top:4px">${p.toFixed(1)}% ${over?'· 已超支':''}</div>
+  </div>`;
+}
+
+/* ============================================================
+   页面：漂移
+   ============================================================ */
+function pageDrift(){
+  const c={CRITICAL:0,HIGH:0,MEDIUM:0,LOW:0};
+  DRIFTS.forEach(d=>{c[d.sev]=(c[d.sev]||0)+1;});
+  const cover=pct(DRIFT_COVER.checked,DRIFT_COVER.managed);
+  return `
+  <div class="grid g4">
+    ${kpi('CRITICAL', c.CRITICAL, `<span class="up">加密 / 公开访问 / 删除保护</span>`)}
+    ${kpi('HIGH', c.HIGH, `<span>行为改变，需排期</span>`)}
+    ${kpi('MEDIUM / LOW', (c.MEDIUM+c.LOW), `<span>标签与格式差异</span>`)}
+    ${kpi('对账覆盖率', cover+'%', `<span class="up">已对账 ${DRIFT_COVER.checked} / 受管 ${DRIFT_COVER.managed}</span>`)}
+  </div>
+
+  <div class="card" style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr auto;gap:0">
+    <div style="padding:13px 18px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="width:7px;height:7px;border-radius:50%;background:#86997F"></span>
+        <span style="font-size:12.5px;font-weight:600">通道 A · 属性对账</span>
+        <span class="badge b-p2">成功</span>
+      </div>
+      <div class="tiny muted" style="margin-top:4px">每日 03:00 · 今天 03:02 成功 · 174 个资源 / 8 条结论 · 耗时 4m 12s</div>
+    </div>
+    <div style="padding:13px 18px;border-left:1px solid var(--border-soft)">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="width:7px;height:7px;border-radius:50%;background:#C9A77E"></span>
+        <span style="font-size:12.5px;font-weight:600">通道 B · plan -refresh-only</span>
+        <span class="badge b-p1">未能判断</span>
+      </div>
+      <div class="tiny muted" style="margin-top:4px">每周日 04:00 · 上次 11-10 因 state lease 获取失败未完成 —— <b style="color:#8A5C4E">不能记为 0 条</b></div>
+    </div>
+    <div style="padding:13px 18px;border-left:1px solid var(--border-soft);background:#FBF8F4;max-width:270px">
+      <div class="tiny" style="color:#8A5C4E;font-weight:600">这行字不能省</div>
+      <div class="tiny" style="color:#A9715C;margin-top:4px;line-height:1.6">把「未能判断」和「0 条漂移」分开显示，比事后解释「为什么没报警」便宜得多。</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-h">
+      <div><div class="card-t">漂移发现</div>
+      <div class="card-s">最小单位 =（资源, 属性）· 严重度只看两维：属性敏感性 × 是否影响可用性 · 覆盖率与列表同屏，且不随筛选变化</div></div>
+      <div style="display:flex;gap:6px" id="driftTabs">
+        ${[['ALL','全部 '+DRIFTS.length],['CRITICAL','CRITICAL '+c.CRITICAL],['HIGH','HIGH '+c.HIGH],['MEDIUM','MEDIUM '+c.MEDIUM],['LOW','LOW '+c.LOW]]
+          .map(x=>`<button class="chip ${state.driftTab===x[0]?'on':''}" data-tab="${x[0]}">${x[1]}</button>`).join('')}
+      </div>
+    </div>
+    <div class="card-b" id="driftList">${driftList()}</div>
+  </div>`;
+}
+
+function driftList(){
+  const list=state.driftTab==='ALL'?DRIFTS:DRIFTS.filter(d=>d.sev===state.driftTab);
+  if(!list.length) return '<div class="tiny muted">当前筛选下没有漂移 —— 但请同时看覆盖率，它决定这个 0 有没有意义</div>';
+  return list.map(d=>{
+    const b=d.sev==='CRITICAL'?'b-p0':(d.sev==='HIGH'?'b-p1':'b-plain');
+    const diffHtml=d.diff.split('\n').map(l=>{
+      const cls=l.charAt(0)==='-'?'neg':(l.charAt(0)==='+'?'pos':'');
+      return `<span class="${cls}">${l.replace(/</g,'&lt;')}</span>`;
+    }).join('\n');
+    return `<div class="drift-card">
+      <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+        <span class="badge ${b}">${d.sev}</span>
+        <span class="badge b-plain">${d.k}</span>
+        <span style="font-size:13px;font-weight:600">${d.res}</span>
+        <span class="tiny muted">${d.type} · ${d.site}/${d.layer}</span>
+        <span class="grow"></span>
+        <span class="tiny muted">${d.ch} · ${d.at}</span>
+      </div>
+      <div class="tiny muted" style="margin-top:5px">
+        属性 <span style="font-family:monospace;color:var(--ink2)">${d.attr}</span>
+        · 期望 <b style="color:#5E7D57">${d.exp}</b> · 实际 <b style="color:#B4664F">${d.act}</b>
+        · 首次 ${d.first} · 出现 ${d.n} 次 · 可能来源 ${d.run}
+      </div>
+      <div class="diff">${diffHtml}</div>
+      <div style="display:flex;gap:8px;margin-top:11px;flex-wrap:wrap">
+        <button class="btn btn-primary" data-drift="${d.id}">查看证据并处置</button>
+        <button class="btn" data-noop="1">在云控制台查看 ↗</button>
+        <span class="grow"></span>
+        <span class="tiny muted">认领必须填理由与复核日期，忽略必须填到期日</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openDrift(id){
+  const d=DRIFTS.find(x=>x.id===id);
+  if(!d) return;
+  const diffHtml=d.diff.split('\n').map(l=>{
+    const cls=l.charAt(0)==='-'?'neg':(l.charAt(0)==='+'?'pos':'');
+    return `<span class="${cls}">${l.replace(/</g,'&lt;')}</span>`;
+  }).join('\n');
+  document.getElementById('drawer').innerHTML=`
+    <div class="drawer-h" style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <div><div style="font-size:15px;font-weight:600">${d.res} · ${d.sev}</div>
+      <div class="tiny muted" style="margin-top:2px">${d.type} · ${d.site}/${d.layer} · ${d.k}</div></div>
+      <button class="close" data-close="1">×</button>
+    </div>
+    <div class="drawer-b">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="border:1px solid var(--sage-bd);background:var(--sage-bg);border-radius:8px;padding:10px 12px">
+          <div class="tiny" style="color:#4E6349;font-weight:600">期望值（代码）</div>
+          <div style="font-family:monospace;font-size:12px;margin-top:4px;word-break:break-all">${d.exp}</div>
+        </div>
+        <div style="border:1px solid var(--clay-bd);background:var(--clay-bg);border-radius:8px;padding:10px 12px">
+          <div class="tiny" style="color:#8A5C4E;font-weight:600">实际值（云上）</div>
+          <div style="font-family:monospace;font-size:12px;margin-top:4px;word-break:break-all">${d.act}</div>
+        </div>
+      </div>
+      <div class="kv" style="margin-top:14px"><div class="kv-k">属性</div><div class="kv-v" style="font-family:monospace">${d.attr}</div></div>
+      <div class="kv"><div class="kv-k">证据来源</div><div class="kv-v">${d.ch} · ${d.site}/${d.layer} 的代码快照与云 API 响应</div></div>
+      <div class="kv"><div class="kv-k">首次 / 最近</div><div class="kv-v">${d.first} · ${d.at}</div></div>
+      <div class="kv"><div class="kv-k">出现次数</div><div class="kv-v">${d.n} 次 <span class="tiny muted">（防抖：消失后先进「待复核」）</span></div></div>
+      <div class="kv"><div class="kv-k">可能来源</div><div class="kv-v">${d.run} <span class="tiny muted">（仅提示，不断言）</span></div></div>
+
+      <div class="tiny muted" style="margin:18px 0 6px">差异</div>
+      <div class="diff">${diffHtml}</div>
+
+      <div class="tiny muted" style="margin:18px 0 6px">处置</div>
+      <textarea placeholder="认领理由（必填）· 复核日期默认 7 天后" rows="2"
+        style="width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font:inherit;font-size:12.5px;outline:none;resize:vertical"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn btn-primary" data-noop="1">认领（7 天后复核）</button>
+        <button class="btn" data-noop="1">忽略并填到期日</button>
+        <button class="btn" data-noop="1">生成 revert PR</button>
+      </div>
+      <div class="callout" style="margin-top:16px">
+        <div>不填理由无法提交（前端与后端都拒绝）；忽略到期后该条自动回到未处理，并产生一条通知。</div>
+      </div>
+    </div>`;
+  document.getElementById('drawer').classList.add('on');
+  document.getElementById('scrim').classList.add('on');
+}
+
+/* ============================================================
+   页面：发布
+   ============================================================ */
+function pagePipeline(){
+  const dora=[
+    {k:'发布成功率',v:'94.2%',s:[88,90,89,91,92,93,93,94],c:'#86997F',f:'近 30 天 · 46 次 apply'},
+    {k:'发布频率',v:'6.2 次/天',s:[3,4,4,5,5,6,6,6],c:'#6B7F94',f:'较上月 +12%'},
+    {k:'交付时长 P50/P90',v:'4.2h / 11h',s:[7,6,5.5,5.2,4.8,4.5,4.3,4.2],c:'#9EAEBE',f:'较上月 -14%'},
+    {k:'平均恢复时长',v:'38 分钟',s:[72,64,58,52,47,42,40,38],c:'#C08B7D',f:'较上月 -5 分钟'}
+  ];
+  return `
+  <div class="grid g4">
+    ${dora.map(d=>`<div class="card kpi">
+      <div class="kpi-l">${d.k}<span class="tiny muted">口径固定</span></div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px">
+        <div class="kpi-v num sm">${d.v}</div>${spark(d.s,d.c,74,26)}
+      </div>
+      <div class="kpi-f down">${d.f}</div>
+    </div>`).join('')}
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-h">
+      <div><div class="card-t">三轨门 · 一个 workflow 三种入口</div>
+      <div class="card-s">PR 只 plan / push main 只 plan / 手动 dispatch 才能 apply，且必须带 confirm=apply · max-parallel: 1 保证同层不并发</div></div>
+      <span class="badge b-info">terraform-plan-apply.yml</span>
+    </div>
+    <div class="card-b" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;padding:0">
+      ${[
+        {t:'PR 触发',cmd:'on: pull_request',can:'只 plan',note:'评论贴出计划摘要，不产生写操作'},
+        {t:'push main',cmd:'on: push: branches: [main]',can:'只 plan',note:'合并后自动 plan，结果存为基线快照'},
+        {t:'手动 dispatch',cmd:'on: workflow_dispatch',can:'plan + apply',note:'三步：预检 → 提交 → 另一人确认'}
+      ].map((x,i)=>`<div style="padding:14px 18px;${i?'border-left:1px solid var(--border-soft)':''}">
+        <div style="display:flex;align-items:center;gap:7px">
+          <span style="font-size:12.5px;font-weight:600">${x.t}</span>
+          <span class="badge ${i===2?'b-p0':'b-plain'}">${x.can}</span>
+        </div>
+        <div class="tiny" style="font-family:monospace;color:var(--ink2);margin-top:6px">${x.cmd}</div>
+        <div class="tiny muted" style="margin-top:4px">${x.note}</div>
+      </div>`).join('')}
+    </div>
+    <div class="card-b" style="border-top:1px solid var(--border-soft);display:flex;gap:20px;flex-wrap:wrap">
+      <span class="tiny muted">① 平台不执行 apply，只观察与记录</span>
+      <span class="tiny muted">② 同站点同层串行，站点之间并行</span>
+      <span class="tiny muted">③ 申请 24 小时未确认自动失效</span>
+    </div>
+  </div>
+
+  <div class="grid g-wide" style="margin-top:14px;align-items:start">
+    <div class="card">
+      <div class="card-h"><div><div class="card-t">待确认的 apply · platform/03-compute</div>
+      <div class="card-s">三步不可跳，且不允许一人完成</div></div>
+      <span class="badge b-p1">第 3 步待办</span></div>
+      <div class="card-b">
+        ${gate('① 预检完成：+1 ~2 −0，销毁 0 个，CRITICAL 漂移 0 条，风险中','pass','2026-11-16 19:04 · chen.y')}
+        ${gate('② 已提交申请：理由「镜像版本升级 1.8.2 → 1.8.3」','pass','2026-11-16 19:06 · chen.y')}
+        ${gate('③ 第二人确认：需另一名 OWNER 确认','fail','等待中 · 剩余 22 小时 41 分')}
+        <div class="callout" style="margin-top:14px">
+          <div><b>同一人确认会被拒绝。</b> 这条规则写在服务端，不是前端置灰 —— 否则「双人」只是文案。</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><div class="card-t">最近运行</div><div class="card-s">plan 用空心徽标，apply 用实心 —— 一眼分清有没有写操作</div></div></div>
+      <div class="tbl-wrap" style="max-height:none">
+        <table class="tbl">
+          <thead><tr><th>层</th><th>模式</th><th>结论</th><th class="r">变更</th><th class="r">耗时</th></tr></thead>
+          <tbody>
+          ${RUNS.map(r=>`<tr data-run="${r.id}">
+            <td><div style="font-size:12px">${r.site}</div><div class="sub">${r.layer}</div></td>
+            <td><span class="badge ${r.mode==='apply'?'b-info':'b-outline'}">${r.mode}</span></td>
+            <td>${runSt(r.st)}</td>
+            <td class="r num tiny">${r.chg}</td>
+            <td class="r num tiny">${r.dur}</td>
+          </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+function runSt(s){
+  if(s==='success') return '<span class="badge b-p2">成功</span>';
+  if(s==='failed') return '<span class="badge b-p0">失败</span>';
+  if(s==='waiting') return '<span class="badge b-p1">待确认</span>';
+  return '<span class="badge b-plain">进行中</span>';
+}
+function gate(text,res,note){
+  const ok=res==='pass';
+  return `<div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--border-soft)">
+    <span style="width:15px;height:15px;border-radius:50%;flex:0 0 15px;margin-top:1px;
+      background:${ok?'#EFF3EE':'#FAEDE9'};color:${ok?'#5E7D57':'#A9715C'};
+      font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700">${ok?'✓':'!'}</span>
+    <div><div style="font-size:12px">${text}</div><div class="tiny muted">${note}</div></div>
+  </div>`;
+}
+
+function openRun(id){
+  const r=RUNS.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('drawer').innerHTML=`
+    <div class="drawer-h" style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <div><div style="font-size:15px;font-weight:600">${r.site}/${r.layer} · ${r.mode}</div>
+      <div class="tiny muted" style="margin-top:2px">${r.why}</div></div>
+      <button class="close" data-close="1">×</button>
+    </div>
+    <div class="drawer-b">
+      <div class="kv"><div class="kv-k">结论</div><div class="kv-v">${runSt(r.st)}</div></div>
+      <div class="kv"><div class="kv-k">操作者</div><div class="kv-v">${r.by} · ${r.at}</div></div>
+      <div class="kv"><div class="kv-k">耗时</div><div class="kv-v">${r.dur}</div></div>
+      <div class="kv"><div class="kv-k">变更集</div><div class="kv-v">${r.chg} <span class="tiny muted">（由两次代码快照做差得出，不解析 plan 文本）</span></div></div>
+      <div class="kv"><div class="kv-k">风险级别</div><div class="kv-v">${r.risk}</div></div>
+      <div class="kv"><div class="kv-k">提交 / PR</div><div class="kv-v" style="font-family:monospace;font-size:11.5px">a3f91c2 · PR #418</div></div>
+      <div class="kv"><div class="kv-k">关联漂移</div><div class="kv-v">${r.id==='r1'?'d6（tags.cost-center）':'无'}</div></div>
+      <div class="kv"><div class="kv-k">关联安全结论</div><div class="kv-v">0 条未豁免</div></div>
+      <div class="callout" style="margin-top:16px">
+        <div>变更资源清单、漂移对比与安全检查共用同一份快照 —— 三者对不上时，页面显示「未关联」而不是猜一个。</div>
+      </div>
+    </div>`;
+  document.getElementById('drawer').classList.add('on');
+  document.getElementById('scrim').classList.add('on');
+}
+
+/* ============================================================
+   数据时间徽标（顶栏点击展开）
+   ============================================================ */
+function openSources(){
+  document.getElementById('drawer').innerHTML=`
+    <div class="drawer-h" style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <div><div style="font-size:15px;font-weight:600">数据时间</div>
+      <div class="tiny muted" style="margin-top:2px">每个源的最后成功时间 · 超过预期频率 3 倍未更新才变琥珀色</div></div>
+      <button class="close" data-close="1">×</button>
+    </div>
+    <div class="drawer-b">
+      ${SOURCES.map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-soft)">
+        <span class="dot ${s.ok?'ok':'warn'}"></span>
+        <div class="grow"><div style="font-size:12.5px;font-weight:600">${s.s} <span class="tiny muted" style="font-weight:400">${s.k}</span></div>
+        <div class="tiny muted">${s.n}</div></div>
+        <span class="tiny" style="color:${s.ok?'var(--ink3)':'#A9715C'}">${s.at}</span>
+      </div>`).join('')}
+      <div class="callout" style="margin-top:16px">
+        <div>任一源不可用时，页面照常渲染，受影响区块标注「基于旧数据 · 上次成功 X 前」，横幅只出现一次、不可手动关闭。</div>
+      </div>
+    </div>`;
+  document.getElementById('drawer').classList.add('on');
+  document.getElementById('scrim').classList.add('on');
+}
+
+/* ============================================================
+   页面：安全（不给总分，只给清单与分布）
+   ============================================================ */
+function pageSec(){
+  const tot={crit:0,high:0,med:0,low:0};
+  FIND_M.forEach(r=>{tot.crit+=r.crit;tot.high+=r.high;tot.med+=r.med;tot.low+=r.low;});
+  return `
+  <div class="grid g-wide" style="align-items:start">
+    <div class="card">
+      <div class="card-h">
+        <div><div class="card-t">类 × 严重度矩阵</div>
+        <div class="card-s">不提供总分与等级 —— 分数会被拿去汇报，清单不会</div></div>
+        <span class="badge b-p0">${tot.crit} CRITICAL</span>
+      </div>
+      <div class="card-b" style="padding:0">
+        <table class="tbl">
+          <thead><tr><th>检查类</th><th class="r">CRITICAL</th><th class="r">HIGH</th><th class="r">MEDIUM</th><th class="r">LOW</th><th class="r">合计</th></tr></thead>
+          <tbody>
+            ${FIND_M.map(r=>`<tr>
+              <td><span class="name" style="font-size:12.5px">${r.k}</span></td>
+              <td class="r num" style="color:${r.crit?'#B4664F':'var(--ink4)'};font-weight:${r.crit?600:400}">${r.crit}</td>
+              <td class="r num" style="color:${r.high?'#8A7052':'var(--ink4)'}">${r.high}</td>
+              <td class="r num">${r.med}</td>
+              <td class="r num muted">${r.low}</td>
+              <td class="r num" style="font-weight:600">${r.crit+r.high+r.med+r.low}</td>
+            </tr>`).join('')}
+            <tr style="cursor:default;background:var(--surface3)">
+              <td style="font-weight:600">合计</td>
+              <td class="r num" style="font-weight:600;color:#B4664F">${tot.crit}</td>
+              <td class="r num" style="font-weight:600;color:#8A7052">${tot.high}</td>
+              <td class="r num" style="font-weight:600">${tot.med}</td>
+              <td class="r num" style="font-weight:600">${tot.low}</td>
+              <td class="r num" style="font-weight:600">${tot.crit+tot.high+tot.med+tot.low}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-b" style="border-top:1px solid var(--border-soft)">
+        <div class="tiny muted">数据来源：Cloud Custodian 规则 + Prowler（平台只做归一，不写规则引擎）· 最近扫描 2026-11-16 05:00</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div><div class="card-t">密钥类结论的展示规则</div>
+      <div class="card-s">只显示前 4 后 4 字符与位置</div></div></div>
+      <div class="card-b">
+        <div class="kv"><div class="kv-k">检出对象</div><div class="kv-v" style="font-family:monospace">AKIA••••••••7Q2F</div></div>
+        <div class="kv"><div class="kv-k">位置</div><div class="kv-v" style="font-family:monospace;font-size:11.5px">photos/03-compute/env.tf:22</div></div>
+        <div class="kv"><div class="kv-k">状态</div><div class="kv-v"><span class="badge b-p0">未处理</span></div></div>
+        <div class="callout" style="margin-top:14px">
+          <div>平台只输出「收敛建议」并生成 Terraform PR，不直接改 IAM —— 权限变更必须走代码评审。</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+          <button class="btn btn-primary" data-noop="1">生成权限收敛 PR</button>
+          <button class="btn" data-noop="1">导出合规清单</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sec">问题清单 · 按责任团队聚合</h3>
+  <div class="card">
+    <div class="tbl-wrap" style="max-height:none">
+      <table class="tbl">
+        <thead><tr><th>规则</th><th>类</th><th>对象</th><th>严重度</th><th>证据</th><th>修复建议</th></tr></thead>
+        <tbody>
+          ${FINDINGS.map(f=>`<tr style="cursor:default">
+            <td><span class="name" style="font-size:12.5px;font-weight:400">${f.r}</span></td>
+            <td class="tiny muted">${f.c}</td>
+            <td class="tiny" style="font-family:monospace">${f.o}</td>
+            <td><span class="badge ${f.sev==='CRITICAL'?'b-p0':f.sev==='HIGH'?'b-p1':'b-plain'}">${f.sev}</span></td>
+            <td class="tiny muted" style="font-family:monospace">${f.ev}</td>
+            <td class="tiny">${f.fix}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="card-b" style="border-top:1px solid var(--border-soft);display:flex;gap:20px;flex-wrap:wrap">
+      <span class="tiny muted">① 可豁免，豁免需理由与到期日，到期自动复现</span>
+      <span class="tiny muted">② 未豁免的高危结论会抬高相关层在发布时的风险级别</span>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   页面：容灾（切换矩阵）
+   ============================================================ */
+function pageDr(){
+  const over=DR_ROWS.filter(r=>r.st==='bad').length;
+  const ok=DR_ROWS.filter(r=>r.st==='ok'||r.st==='iso').length;
+  const assetOk=DR_ASSETS.filter(a=>a.st==='ok').length;
+  const blocked=DR_ASSETS.filter(a=>a.st!=='ok');
+  return `
+  <div class="grid g4">
+    ${kpi('可切换组件', DR_ROWS.length, `<span>其中 <b>${ok}</b> 项已验证</span>`)}
+    ${kpi('超期未演练', over, `<span class="up">超过 90 天自动标黄</span>`)}
+    ${kpi('切换前置条件', assetOk+' / '+DR_ASSETS.length, `<span>${blocked.length} 项：${blocked.map(b=>b.a).join(' · ')}</span>`)}
+    ${kpi('最差 RTO 偏差', '+10 min', `<span class="up">元数据库 40 min vs 目标 30 min</span>`)}
+  </div>
+
+  <div class="card" style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0">
+    ${[['DATA 平面','AWS + GCP 跑业务流量','#6B7F94'],['CONTROL 平面','Azure 跑平台、state、DNS','#C08B7D'],['OBS 平面','AWS 管理站 · mgmt_enabled 门控','#8A9A86']]
+      .map(([k,v,c],i)=>`<div style="padding:13px 18px;${i?'border-left:1px solid var(--border-soft)':''}">
+        <div style="display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:2px;background:${c}"></span>
+        <span style="font-size:12.5px;font-weight:600">${k}</span></div>
+        <div class="tiny muted" style="margin-top:3px">${v}</div></div>`).join('')}
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-h">
+      <div><div class="card-t">切换矩阵</div>
+      <div class="card-s">每行一个可切换组件 · RTO / RPO 只认演练实测值 · 前置条件未验证的行视为「不可执行」</div></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn" data-noop="1">导出 runbook</button>
+        <button class="btn btn-primary" data-noop="1">登记新演练</button>
+      </div>
+    </div>
+    <div class="tbl-wrap" style="max-height:none">
+      <table class="tbl">
+        <thead><tr>
+          <th>组件</th><th>一致性模式</th><th>主 → 备</th><th>切换方式</th>
+          <th class="r">RTO 目标</th><th class="r">实测</th><th class="r">RPO</th><th>上次演练</th><th>状态</th>
+        </tr></thead>
+        <tbody>
+        ${DR_ROWS.map(r=>{
+          const b=ST_BADGE[r.st];
+          const late=r.st==='bad';
+          return `<tr style="cursor:default">
+            <td><div style="font-weight:600">${r.c}</div><div class="tiny muted">${r.L}</div></td>
+            <td>${r.ha==='—'?'<span class="tiny muted">—</span>':`<span class="badge ${r.ha==='Active-Active'?'b-p2':r.ha==='Active-Read'?'b-p1':'b-info'}">${r.ha}</span>`}</td>
+            <td><div style="font-size:12px">${r.p}</div><div class="tiny muted">→ ${r.b}</div></td>
+            <td class="muted tiny">${r.m}</td>
+            <td class="r num">${r.rtoT}</td>
+            <td class="r num ${late?'up':''}" style="font-weight:600">${r.rtoA}</td>
+            <td class="r num">${r.rpo}</td>
+            <td class="${late?'up':'muted'} num tiny">${r.d}<div class="tiny muted">${r.note}</div></td>
+            <td><span class="badge ${b[0]}">${b[1]}</span></td>
+          </tr>`;
+        }).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="card-b" style="border-top:1px solid var(--border-soft);display:flex;gap:20px;flex-wrap:wrap">
+      <span class="tiny muted">① 超过 90 天未演练整行标黄，超过 180 天 RTO/RPO 一并标为过期</span>
+      <span class="tiny muted">② 未演练的行显示「未验证」，不给理论数字</span>
+      <span class="tiny muted">③ 平台不提供「执行切换」按钮，只给步骤与检查项</span>
+    </div>
+  </div>
+
+  <div class="grid g-wide" style="margin-top:14px;align-items:start">
+    <div class="card">
+      <div class="card-h">
+        <div><div class="card-t">切换前置条件</div>
+        <div class="card-s">六项不全在管理面，矩阵里的 RTO 都是纸上的 —— 每项写清会卡住哪一步</div></div>
+        <span class="badge ${assetOk===DR_ASSETS.length?'b-p2':'b-p1'}">${assetOk} / ${DR_ASSETS.length} 就位</span>
+      </div>
+      <div class="tbl-wrap" style="max-height:none">
+        <table class="tbl">
+          <tbody>
+          ${DR_ASSETS.map(a=>`<tr style="cursor:default">
+            <td style="width:30%">
+              <div style="font-weight:600">${a.a}</div>
+              <div class="tiny muted">${a.st==='ok'?a.w:'现状：'+a.cur}</div>
+            </td>
+            <td class="tiny" style="color:${a.st==='ok'?'var(--ink3)':'#8A5C4E'};line-height:1.5">${a.block}</td>
+            <td class="r"><span class="badge ${a.st==='ok'?'b-p2':'b-p1'}">${a.st==='ok'?'已就位':'迁移中'}</span></td>
+          </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="card-b" style="border-top:1px solid var(--border-soft)">
+        <div class="tiny" style="color:#8A5C4E">救援工具不能和被救援对象住在同一栋楼里 —— 一项在数据面，整条切换链就是断的。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <div><div class="card-t">演练记录</div>
+        <div class="card-s">矩阵里的「实测 RTO」只能来自这里 · 未通过必须产出整改项</div></div>
+        <span class="badge b-p0">1 项未通过</span>
+      </div>
+      <div class="card-b" style="padding:14px 18px">
+        ${DR_DRILLS.map((x,i)=>`
+          <div style="display:flex;gap:12px;${i?'margin-top:14px;padding-top:14px;border-top:1px solid var(--border-soft)':''}">
+            <div style="flex:0 0 62px"><div class="tiny muted num">${x.d}</div></div>
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <span style="font-size:12.5px;font-weight:600">${x.n}</span>
+                <span class="badge ${x.st==='ok'?'b-p2':x.st==='warn'?'b-p1':'b-p0'}">${x.r}</span>
+              </div>
+              <div class="tiny muted" style="margin-top:3px">目标 ${x.tgt} · 实际 <b style="color:${x.st==='ok'?'#5E7D57':'#B4664F'}">${x.act}</b> · ${x.note}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="card-b" style="border-top:1px solid var(--border-soft);display:flex;gap:8px;align-items:center">
+        <button class="btn" data-noop="1">登记新演练</button>
+        <span class="grow"></span>
+        <span class="tiny muted">平均间隔 34 天 · 目标 60 天</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:14px;align-items:start">
+    <div class="card">
+      <div class="card-h"><div><div class="card-t">高可用一致性模式</div>
+      <div class="card-s">按业务能力分别定义 —— 整个系统给一个答案等于没答案</div></div></div>
+      <div class="card-b" style="padding:0">
+        <table class="tbl">
+          <thead><tr><th>业务能力</th><th>模式</th><th>冲突 / 一致性策略</th><th class="r">RPO</th></tr></thead>
+          <tbody>
+          ${HA_MODES.map(h=>`<tr style="cursor:default">
+            <td style="font-weight:600">${h.cap}</td>
+            <td><span class="badge ${h.mode==='Active-Active'?'b-p2':'b-info'}">${h.mode}</span></td>
+            <td class="muted tiny">${h.conf}</td>
+            <td class="r num">${h.rpo}</td>
+          </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div><div class="card-t">平台的角色边界</div>
+      <div class="card-s">自动切换首期不做：误判的损失通常大于多停 5 分钟</div></div></div>
+      <div class="card-b" style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+        <div>
+          <div class="tiny" style="color:#5E7D57;font-weight:600;margin-bottom:6px">做</div>
+          <div class="tiny muted" style="line-height:1.95">展示矩阵与演练状态<br>提供 runbook 与检查清单<br>触发 workflow（双人确认）<br>记录切换事件到 event 流</div>
+        </div>
+        <div>
+          <div class="tiny" style="color:#B4664F;font-weight:600;margin-bottom:6px">不做</div>
+          <div class="tiny muted" style="line-height:1.95">不直接改 DNS 解析<br>不直接执行 failover<br>不持有提升权限<br>不做自动故障切换</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   页面：告警与事件
+   ============================================================ */
+function pageAlerts(){
+  return `
+  <div class="grid g4">
+    ${kpi('今日原始告警','186', `<span>来自 5 个通道</span>`)}
+    ${kpi('收敛为事件','62', `<span class="down">收敛率 66.7%</span>`)}
+    ${kpi('进行中事件','2', `<span class="up">1 项 P1</span>`)}
+    ${kpi('中位响应','11 分钟', `<span class="down">好于 15 分钟 SLO</span>`)}
+  </div>
+
+  <div class="callout" style="margin-top:14px">
+    <div style="flex:1">
+      <b>收敛规则（可解释，不做黑盒）：</b>
+      同站点同层 30 分钟内合并 · 依赖簇内 10 分钟内合并 ·
+      <b>发布后 30 分钟内的告警自动挂到该次发布</b>。
+      最后这条能砍掉大半「这次故障是不是我们发版引起的」的群聊。
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-h"><div><div class="card-t">事件列表</div>
+    <div class="card-s">按「严重度 × 层等级 × 是否有进行中事件」排序 · 每条带跳回原生监控的链接</div></div>
+    <span class="badge b-plain">只读 · 不支持静默与改规则</span></div>
+    <div style="padding:2px 0">
+      ${ALERTS.map(i=>`<div class="item-row" style="align-items:flex-start;padding:14px 18px">
+        <span class="badge ${i.sev==='P0'?'b-p0':(i.sev==='P1'?'b-p1':'b-p2')}" style="margin-top:2px">${i.sev}</span>
+        <div class="grow">
+          <div style="font-size:13px;font-weight:500">${i.t}</div>
+          <div class="tiny muted" style="margin-top:3px">${i.cause}</div>
+          <div style="margin-top:7px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+            <span class="badge b-lilac">${i.st}</span>
+            <span class="tag">${i.site}/${i.layer}</span>
+            <span class="tiny muted">持续 ${i.dur} · ${i.at}</span>
+          </div>
+        </div>
+        <span class="arrow">›</span>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <div class="grid g-wide" style="margin-top:14px;align-items:start">
+    <div class="card">
+      <div class="card-h"><div><div class="card-t">告警收敛漏斗</div>
+      <div class="card-s">上方 4 个事件就是从这 186 条里收敛出来的</div></div></div>
+      <div class="card-b">
+        ${funnel('原始告警',186,186,'#9EAEBE')}
+        ${funnel('去重后',104,186,'#B0BECB')}
+        ${funnel('关联归并',62,186,'#C4A08F')}
+        ${funnel('人工确认事件',9,186,'#86997F')}
+      </div>
+      <div class="card-b" style="border-top:1px solid var(--border-soft);display:flex;gap:8px;align-items:center">
+        <button class="btn" data-noop="1">全部标记已读</button>
+        <span class="grow"></span>
+        <span class="tiny muted">平台不提供告警规则编辑，避免双份规则不一致</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div><div class="card-t">数据源健康度</div>
+      <div class="card-s">哪个源、多久没更新、原因 —— 断一个源不能让页面空着</div></div></div>
+      <div class="card-b" style="padding:8px 18px 14px">
+        ${SOURCES.map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-soft)">
+          <span class="dot ${s.ok?'ok':'warn'}"></span>
+          <div class="grow"><div style="font-size:12px;font-weight:600">${s.s} <span class="tiny muted" style="font-weight:400">${s.k}</span></div>
+          <div class="tiny muted">${s.n}</div></div>
+          <span class="tiny" style="color:${s.ok?'var(--ink3)':'#A9715C'}">${s.at}</span>
+        </div>`).join('')}
+        <div class="tiny muted" style="margin-top:10px;line-height:1.7">
+          账单源滞后 2 天属预期（T+2），不触发降级横幅；超过预期频率 3 倍未更新才变琥珀色。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:14px;align-items:start">
+    <div class="card">
+      <div class="card-h"><div><div class="card-t">P1 事件时间线</div>
+      <div class="card-s">平台库连接数 92%</div></div></div>
+      <div class="card-b">
+        ${tl('2 小时前','发布结束','platform/03-compute 1.8.2 → 1.8.3','#8C8497')}
+        ${tl('1 小时 50 分前','首个告警','连接数 82% 越过阈值','#C9A77E')}
+        ${tl('1 小时 46 分前','事件开启','自动挂到该次发布 · on-call chen.y 认领','#86997F')}
+        ${tl('1 小时 12 分前','假设验证','慢查询来自新版批量任务，连接未释放','#9EAEBE')}
+        ${tl('18 分钟前','缓解措施','副本上限回收 + 连接池 200 → 320','#B0B5B9')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><div class="card-t">平台事件流</div>
+      <div class="card-s">采集、漂移、发布、开关变化 · 最多 50 条</div></div></div>
+      <div class="card-b">
+        ${EVENTS.map(e=>tl(e.t,e.x,e.d,e.c)).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function funnel(k,v,total,color){
+  return `<div class="bar-row">
+    <div class="bar-lbl">${k}</div>
+    <div class="bar-track" style="height:9px">
+      <div class="bar-fill" style="width:${(v/total*100).toFixed(0)}%;background:${color}"></div>
+    </div>
+    <div class="bar-val num">${v}</div>
+  </div>`;
+}
+function tl(t,title,desc,color){
+  return `<div style="display:flex;gap:11px;padding:6px 0">
+    <div style="flex:0 0 82px" class="tiny muted">${t}</div>
+    <div style="flex:0 0 7px;display:flex;flex-direction:column;align-items:center">
+      <span style="width:7px;height:7px;border-radius:50%;background:${color};margin-top:5px"></span>
+      <span style="flex:1;width:1px;background:var(--border)"></span>
+    </div>
+    <div style="padding-bottom:6px">
+      <div style="font-size:12px;font-weight:500">${title}</div>
+      <div class="tiny muted">${desc}</div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   导航与渲染
+   ============================================================ */
+const ICONS={
+  overview:'<rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/>',
+  catalog:'<path d="M8 2 14 5 8 8 2 5z"/><path d="M2 8.5 8 11.5 14 8.5"/><path d="M2 11.5 8 14.5 14 11.5"/>',
+  graph:'<circle cx="8" cy="3.2" r="1.8"/><circle cx="3.2" cy="12" r="1.8"/><circle cx="12.8" cy="12" r="1.8"/><path d="M7 4.6 4 10.4M9 4.6 12 10.4M5 12h6"/>',
+  cost:'<path d="M2 13V7M5.7 13V4M9.4 13V9M13 13V2"/>',
+  drift:'<circle cx="3.5" cy="8" r="2"/><circle cx="12.5" cy="8" r="2"/><path d="M5.5 8h5" stroke-dasharray="2 1.6"/>',
+  pipeline:'<circle cx="8" cy="8" r="6"/><path d="M6.5 5.5 10.5 8l-4 2.5z"/>',
+  sec:'<path d="M8 1.8 13.2 4v3.8c0 3-2.2 5.3-5.2 6.4-3-1.1-5.2-3.4-5.2-6.4V4z"/>',
+  alert:'<path d="M8 2a4 4 0 0 0-4 4v3l-1.5 2.5h11L12 9V6a4 4 0 0 0-4-4z"/><path d="M6.6 13.6a1.5 1.5 0 0 0 2.8 0"/>',
+  dr:'<path d="M2.5 5.6h9M9 3.1 11.5 5.6 9 8.1"/><path d="M13.5 11.4h-9M7 8.9 4.5 11.4 7 13.9"/>'
+};
+
+const NAV=[
+  {g:'运营',items:[
+    {id:'overview',label:'总览',icon:'overview'},
+    {id:'catalog',label:'资源目录',icon:'catalog'},
+    {id:'graph',label:'栈图谱',icon:'graph'},
+    {id:'cost',label:'成本',icon:'cost'}
+  ]},
+  {g:'治理',items:[
+    {id:'pipeline',label:'发布',icon:'pipeline',dot:true},
+    {id:'drift',label:'漂移',icon:'drift',badge:'2'},
+    {id:'sec',label:'安全',icon:'sec'},
+    {id:'dr',label:'容灾矩阵',icon:'dr',dot:true}
+  ]},
+  {g:'响应',items:[
+    {id:'alerts',label:'告警与事件',icon:'alert',dot:true}
+  ]}
+];
+
+const META={
+  overview:{t:'总览',s:()=>`受管 ${TOTAL_RES} 个资源 · 4 站点 16 层 · ${BASIS_LABEL[state.basis]} · 数据 12 分钟前`},
+  catalog:{t:'资源目录',s:()=>`示例集 ${RESOURCES.length} 条 · 全量 ${TOTAL_RES+3} 条 · 未归类 3 个 · 采集于 2026-11-16 02:12`},
+  graph:{t:'栈图谱',s:()=>`16 个节点 · 已画 16 条关系 · 2 条弱推断默认不画 · ${SHARED_REFS} 条共享层引用不画线`},
+  cost:{t:'成本',s:()=>`账单截止 2026-11-14 · ${BASIS_LABEL[state.basis]} · USD→CNY 7.12 · 精度：汇总`},
+  drift:{t:'漂移',s:()=>`通道 A 每日 03:00 · 通道 B 每周日 04:00 · 覆盖率 ${pct(DRIFT_COVER.checked,DRIFT_COVER.managed)}%`},
+  pipeline:{t:'发布',s:()=>`GitHub App 实时接入 · 46 个仓库 · 事件延迟 < 10s`},
+  sec:{t:'安全',s:()=>`最近扫描 2026-11-16 05:00 · 只给清单与分布，不给总分`},
+  dr:{t:'容灾矩阵',s:()=>`6 个组件 · 1 项超 90 天未演练 · 前置条件 5/6 就位`},
+  alerts:{t:'告警与事件',s:()=>`实时 · 今日 186 条告警收敛为 62 个事件`}
+};
+
+const PAGES={overview:pageOverview,catalog:pageCatalog,graph:pageGraph,cost:pageCost,
+  drift:pageDrift,pipeline:pagePipeline,sec:pageSec,dr:pageDr,alerts:pageAlerts};
+
+/* 路由：#/ #/catalog #/graph #/cost #/drift #/pipeline #/sec #/dr #/alerts */
+const ROUTES={overview:'#/',catalog:'#/catalog',graph:'#/graph',cost:'#/cost',
+  drift:'#/drift',pipeline:'#/pipeline',sec:'#/sec',dr:'#/dr',alerts:'#/alerts'};
+const PAGE_OF={};
+Object.keys(ROUTES).forEach(k=>{PAGE_OF[ROUTES[k]]=k;});
+
+function hashFor(){
+  let h=ROUTES[state.page]; const qs=[];
+  if(state.page==='catalog'){
+    if(state.site!=='ALL') qs.push('site='+state.site);
+    if(state.cloud!=='ALL') qs.push('cloud='+state.cloud);
+    if(state.catView!=='list') qs.push('view='+state.catView);
+    if(state.q) qs.push('q='+encodeURIComponent(state.q));
+  }
+  if(state.page==='drift' && state.driftTab!=='ALL') qs.push('sev='+state.driftTab);
+  return qs.length ? h+'?'+qs.join('&') : h;
+}
+/* 筛选条件写进 URL：刷新、分享后结果一致 */
+function applyQuery(){
+  let qs='';
+  try{ qs=(location.hash||'').split('?')[1]||''; }catch(e){}
+  const q=new URLSearchParams(qs);
+  if(state.page==='catalog'){
+    state.site=q.get('site')||'ALL';
+    state.cloud=q.get('cloud')||'ALL';
+    state.catView=q.get('view')||'list';
+    state.q=q.get('q')||'';
+  }else if(state.page==='drift'){
+    state.driftTab=q.get('sev')||'ALL';
+  }
+}
+function syncHash(){
+  try{
+    const want=hashFor();
+    if(location.hash===want) return;
+    const cur=(location.hash||'#/').split('?')[0];
+    if(cur===want.split('?')[0]) location.replace(want); else location.hash=want;
+  }catch(e){}
+}
+
+function renderNav(){
+  document.getElementById('nav').innerHTML=NAV.map(g=>`
+    <div class="nav-group">${g.g}</div>
+    ${g.items.map(it=>`<div class="nav-item ${state.page===it.id?'on':''}" data-page="${it.id}">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">${ICONS[it.icon]}</svg>
+      <span>${it.label}</span>
+      ${it.badge?`<span class="nav-badge">${it.badge}</span>`:(it.dot?'<span class="nav-dot"></span>':'')}
+    </div>`).join('')}
+  `).join('');
+}
+
+function render(){
+  renderNav();
+  document.getElementById('view').innerHTML=PAGES[state.page]();
+  document.getElementById('title').textContent=META[state.page].t;
+  document.getElementById('sub').textContent=META[state.page].s();
+  document.querySelectorAll('#segBasis button').forEach(b=>b.classList.toggle('on',b.dataset.v===state.basis));
+  document.querySelectorAll('#segCur button').forEach(b=>b.classList.toggle('on',b.dataset.v===state.cur));
+  document.querySelectorAll('#segSite button').forEach(b=>b.classList.toggle('on',b.dataset.v===state.site));
+  syncCount();
+  syncHash();
+}
+
+/* ---------- 事件 ---------- */
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('on');
+  document.getElementById('scrim').classList.remove('on');
+}
+
+document.addEventListener('click',e=>{
+  const nav=e.target.closest('[data-page]');
+  if(nav){ closeDrawer(); state.page=nav.dataset.page; window.scrollTo({top:0}); render(); return; }
+
+  const seg=e.target.closest('#segBasis button');
+  if(seg){ state.basis=seg.dataset.v; render(); return; }
+  const seg2=e.target.closest('#segCur button');
+  if(seg2){ state.cur=seg2.dataset.v; render(); return; }
+  const seg3=e.target.closest('#segSite button');
+  if(seg3){ state.site=seg3.dataset.v; render(); return; }
+
+  const st=e.target.closest('[data-site]');
+  if(st){ state.site=st.dataset.site;
+    document.querySelectorAll('#segSite button').forEach(b=>b.classList.toggle('on',b.dataset.v===state.site));
+    render(); return; }
+
+  const gn=e.target.closest('[data-node]');
+  if(gn){ state.sel=gn.dataset.node; render(); return; }
+
+  const cv=e.target.closest('#catView button');
+  if(cv){ state.catView=cv.dataset.view;
+    document.querySelectorAll('#catView button').forEach(b=>b.classList.toggle('on',b.dataset.view===state.catView));
+    const b=document.getElementById('catBody'); if(b){ b.innerHTML=catBody(); syncCount(); syncHash(); } return; }
+
+  const cl=e.target.closest('[data-cloud]');
+  if(cl){ state.cloud=cl.dataset.cloud;
+    document.querySelectorAll('#cloudChips .chip').forEach(c=>c.classList.toggle('on',c.dataset.cloud===state.cloud));
+    const b=document.getElementById('catBody'); if(b){ b.innerHTML=catBody(); syncCount(); syncHash(); } return; }
+
+  const th=e.target.closest('th[data-sort]');
+  if(th){ const k=th.dataset.sort;
+    state.sort = (state.sort.k===k) ? {k,d:state.sort.d==='asc'?'desc':'asc'} : {k,d:'asc'};
+    const b=document.getElementById('catBody'); if(b){ b.innerHTML=catBody(); syncCount(); } return; }
+
+  const tree=e.target.closest('[data-tree]');
+  if(tree){ const k=tree.dataset.tree; state.tree[k]=!state.tree[k];
+    const b=document.getElementById('catBody'); if(b){ b.innerHTML=catBody(); syncCount(); } return; }
+
+  const tab=e.target.closest('[data-tab]');
+  if(tab){ state.driftTab=tab.dataset.tab;
+    document.querySelectorAll('#driftTabs .chip').forEach(c=>c.classList.toggle('on',c.dataset.tab===state.driftTab));
+    const el=document.getElementById('driftList'); if(el) el.innerHTML=driftList();
+    syncHash(); return; }
+
+  const gv=e.target.closest('[data-gview]');
+  if(gv){ state.graphView=gv.dataset.gview; render(); return; }
+
+  const inf=e.target.closest('[data-inferred]');
+  if(inf){ state.inferred=!state.inferred; render(); return; }
+
+  const dr=e.target.closest('[data-drift]');
+  if(dr){ openDrift(dr.dataset.drift); return; }
+
+  const run=e.target.closest('[data-run]');
+  if(run){ openRun(run.dataset.run); return; }
+
+  const sr=e.target.closest('[data-sources]');
+  if(sr){ openSources(); return; }
+
+  const tr=e.target.closest('[data-res]');
+  if(tr){ openResource(+tr.dataset.res); return; }
+
+  if(e.target.closest('[data-close]')||e.target.id==='scrim'){ closeDrawer(); return; }
+});
+
+document.addEventListener('input',e=>{
+  if(e.target.id==='resSearch'){
+    state.q=e.target.value;
+    const b=document.getElementById('catBody');
+    if(b){ b.innerHTML=catBody(); syncCount(); syncHash(); }
+  }
+});
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeDrawer(); });
+
+/* 初始路由：地址栏可复制分享，前进后退可用 */
+try{
+  const p0=PAGE_OF[(location.hash||'#/').split('?')[0]];
+  if(p0) state.page=p0;
+  applyQuery();
+  window.addEventListener('hashchange',()=>{
+    if(location.hash===hashFor()) return;      /* 自己写回的，不重复渲染 */
+    const path=(location.hash||'#/').split('?')[0];
+    const p=PAGE_OF[path];
+    if(p){ closeDrawer(); state.page=p; applyQuery(); render(); window.scrollTo({top:0}); }
+  });
+}catch(e){}
+render();
+</script>
+</body>
+</html>

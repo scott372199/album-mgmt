@@ -1,0 +1,277 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 980" width="1240" height="980" font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <marker id="f1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 z" fill="#C08B7D"/>
+    </marker>
+    <marker id="f2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 z" fill="#8A9095"/>
+    </marker>
+  </defs>
+  <rect width="1240" height="980" fill="#FAF9F7"/>
+
+  <text x="40" y="42" font-size="21" font-weight="600" fill="#2E3134">多平面架构与跨云容灾</text>
+  <text x="40" y="66" font-size="12" fill="#8A9095">AWS + GCP 跑业务流量，Azure 跑管理流量 —— 但"切换能力"如果住在数据面里，它会在最需要的时候消失</text>
+
+  <!-- ===================== MGMT ===================== -->
+  <rect x="40" y="100" width="700" height="140" rx="10" fill="#FBF6F3" stroke="#E3C7BE"/>
+  <text x="56" y="126" font-size="10.5" font-weight="600" fill="#8A5C4E">MGMT</text>
+  <text x="56" y="141" font-size="9.5" fill="#8A5C4E">管理面</text>
+  <text x="56" y="157" font-size="8.4" fill="#A9A49C">人的入口</text>
+  <text x="56" y="188" font-size="8.6" font-weight="600" fill="#B5654F">Azure</text>
+  <text x="56" y="201" font-size="7.8" fill="#B9AFA6">低频 · 强审计</text>
+
+  <rect x="140" y="118" width="186" height="44" rx="6" fill="#FFFFFF" stroke="#E7E3DC"/>
+  <rect x="140" y="118" width="3" height="44" rx="1.5" fill="#C08B7D"/>
+  <text x="152" y="136" font-size="10" font-weight="600" fill="#3A3E42">Terraform state</text>
+  <text x="152" y="150" font-size="8.4" fill="#8A9095">Azure Blob + lease</text>
+
+  <rect x="340" y="118" width="186" height="44" rx="6" fill="#FFFFFF" stroke="#E7E3DC"/>
+  <rect x="340" y="118" width="3" height="44" rx="1.5" fill="#C08B7D"/>
+  <text x="352" y="136" font-size="10" font-weight="600" fill="#3A3E42">Provider 凭据</text>
+  <text x="352" y="150" font-size="8.4" fill="#8A9095">Azure Key Vault</text>
+
+  <rect x="540" y="118" width="186" height="44" rx="6" fill="#FFFFFF" stroke="#E7E3DC"/>
+  <rect x="540" y="118" width="3" height="44" rx="1.5" fill="#C08B7D"/>
+  <text x="552" y="136" font-size="10" font-weight="600" fill="#3A3E42">Console One 自身</text>
+  <text x="552" y="150" font-size="8.4" fill="#8A9095">不与数据面共命运</text>
+
+  <rect x="140" y="174" width="186" height="44" rx="6" fill="#FFFFFF" stroke="#E7E3DC"/>
+  <rect x="140" y="174" width="3" height="44" rx="1.5" fill="#DCC8BE"/>
+  <text x="152" y="192" font-size="10" font-weight="600" fill="#3A3E42">制品 / 镜像仓库</text>
+  <text x="152" y="206" font-size="8.4" fill="#8A9095">要恢复时能拉到镜像</text>
+
+  <rect x="340" y="174" width="186" height="44" rx="6" fill="#FFFFFF" stroke="#E7E3DC"/>
+  <rect x="340" y="174" width="3" height="44" rx="1.5" fill="#DCC8BE"/>
+  <text x="352" y="192" font-size="10" font-weight="600" fill="#3A3E42">审计与操作日志</text>
+  <text x="352" y="206" font-size="8.4" fill="#8A9095">WORM · 保留 1 年</text>
+
+  <rect x="540" y="174" width="186" height="44" rx="6" fill="#FFFFFF" stroke="#E7E3DC"/>
+  <rect x="540" y="174" width="3" height="44" rx="1.5" fill="#DCC8BE"/>
+  <text x="552" y="192" font-size="10" font-weight="600" fill="#3A3E42">SSO / 审批入口</text>
+  <text x="552" y="206" font-size="8.4" fill="#8A9095">高危操作双人确认</text>
+
+  <text x="140" y="234" font-size="8.6" fill="#B5654F">六项资产必须在这里 —— 救援工具不能和被救援对象住同一栋楼</text>
+
+  <!-- MGMT -> CONTROL -->
+  <line x1="450" y1="240" x2="450" y2="282" stroke="#C08B7D" stroke-width="1.5" marker-end="url(#f1)"/>
+  <text x="462" y="264" font-size="8.6" fill="#B5654F">读凭据 · 执行变更 · 不依赖数据面</text>
+
+  <!-- ===================== CONTROL ===================== -->
+  <rect x="40" y="268" width="700" height="108" rx="10" fill="#F6F4F8" stroke="#D6CFDE"/>
+  <text x="56" y="294" font-size="10.5" font-weight="600" fill="#5B5468">CONTROL</text>
+  <text x="56" y="309" font-size="9.5" fill="#5B5468">控制面</text>
+  <text x="56" y="325" font-size="8.4" fill="#A9A49C">机器的开关</text>
+  <text x="56" y="352" font-size="8.6" font-weight="600" fill="#6F667C">Azure / 独立</text>
+
+  <rect x="140" y="286" width="139" height="46" rx="6" fill="#FFFFFF" stroke="#E7E3DC"/>
+  <rect x="140" y="286" width="3" height="46" rx="1.5" fill="#8C8497"/>
+  <text x="152" y="305" font-size="9.6" font-weight="600" fill="#3A3E42">权威 DNS</text>
+  <text x="152" y="320" font-size="8.2" fill="#8A9095">改解析 = 切流量</text>
+
+  <rect x="289" y="286" width="139" height="46" rx="6" fill="#FFFFFF" stroke="#E7E3DC"/>
+  <rect x="289" y="286" width="3" height="46" rx="1.5" fill="#8C8497"/>
+  <text x="301" y="305" font-size="9.6" font-weight="600" fill="#3A3E42">探活 / 健康检查</text>
+  <text x="301" y="320" font-size="8.2" fill="#8A9095">多地域合成探测</text>
+
+  <rect x="438" y="286" width="139" height="46" rx="6" fill="#FFFFFF" stroke="#E7E3DC"/>
+  <rect x="438" y="286" width="3" height="46" rx="1.5" fill="#8C8497"/>
+  <text x="450" y="305" font-size="9.6" font-weight="600" fill="#3A3E42">切换编排</text>
+  <text x="450" y="320" font-size="8.2" fill="#8A9095">GitHub workflow</text>
+
+  <rect x="587" y="286" width="139" height="46" rx="6" fill="#FFFFFF" stroke="#E7E3DC"/>
+  <rect x="587" y="286" width="3" height="46" rx="1.5" fill="#8C8497"/>
+  <text x="599" y="305" font-size="9.6" font-weight="600" fill="#3A3E42">发布流水线</text>
+  <text x="599" y="320" font-size="8.2" fill="#8A9095">Actions + 自托管兜底</text>
+
+  <!-- CONTROL -> DATA -->
+  <line x1="450" y1="376" x2="450" y2="418" stroke="#C08B7D" stroke-width="1.5" marker-end="url(#f1)"/>
+  <text x="462" y="400" font-size="8.6" fill="#B5654F">切换动作走 workflow，平台只负责确认 + 触发 + 记录</text>
+
+  <!-- ===================== DATA ===================== -->
+  <rect x="40" y="404" width="700" height="196" rx="10" fill="#F7F8F6" stroke="#D9DED4"/>
+  <text x="56" y="430" font-size="10.5" font-weight="600" fill="#3E5239">DATA</text>
+  <text x="56" y="445" font-size="9.5" fill="#3E5239">数据面</text>
+  <text x="56" y="461" font-size="8.4" fill="#A9A49C">业务本身</text>
+  <text x="56" y="492" font-size="8.6" font-weight="600" fill="#43536B">AWS 主</text>
+  <text x="56" y="505" font-size="8.6" font-weight="600" fill="#4E6349">GCP 备</text>
+  <text x="56" y="520" font-size="7.8" fill="#B9AFA6">高流量 · 高成本</text>
+
+  <text x="140" y="424" font-size="8.8" font-weight="600" fill="#43536B">AWS · 主 · 承接线上业务流量</text>
+  <rect x="140" y="432" width="111" height="46" rx="6" fill="#EDF1F4" stroke="#C3CFDA"/>
+  <text x="195" y="452" font-size="8.8" font-weight="600" fill="#43536B" text-anchor="middle">cloudfront</text>
+  <text x="195" y="466" font-size="8" fill="#6B7F94" text-anchor="middle">edge.cdn</text>
+
+  <rect x="257" y="432" width="111" height="46" rx="6" fill="#EDF1F4" stroke="#C3CFDA"/>
+  <text x="312" y="452" font-size="8.8" font-weight="600" fill="#43536B" text-anchor="middle">alb</text>
+  <text x="312" y="466" font-size="8" fill="#6B7F94" text-anchor="middle">lb</text>
+
+  <rect x="374" y="432" width="111" height="46" rx="6" fill="#EDF1F4" stroke="#C3CFDA"/>
+  <text x="429" y="452" font-size="8.8" font-weight="600" fill="#43536B" text-anchor="middle">eks</text>
+  <text x="429" y="466" font-size="8" fill="#6B7F94" text-anchor="middle">compute</text>
+
+  <rect x="491" y="432" width="111" height="46" rx="6" fill="#EDF1F4" stroke="#C3CFDA"/>
+  <text x="546" y="452" font-size="8.8" font-weight="600" fill="#43536B" text-anchor="middle">rds</text>
+  <text x="546" y="466" font-size="8" fill="#6B7F94" text-anchor="middle">rdbms</text>
+
+  <rect x="608" y="432" width="111" height="46" rx="6" fill="#EDF1F4" stroke="#C3CFDA"/>
+  <text x="663" y="452" font-size="8.8" font-weight="600" fill="#43536B" text-anchor="middle">s3</text>
+  <text x="663" y="466" font-size="8" fill="#6B7F94" text-anchor="middle">storage.object</text>
+
+  <!-- failover arrow -->
+  <line x1="429" y1="478" x2="429" y2="512" stroke="#C08B7D" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#f1)"/>
+  <text x="440" y="500" font-size="8.2" fill="#B5654F">复制 / 提升 / 回切</text>
+
+  <text x="140" y="508" font-size="8.8" font-weight="600" fill="#4E6349">GCP · 备 / 双活 · 同样承接业务，不是"灾备摆设"</text>
+  <rect x="140" y="516" width="139" height="46" rx="6" fill="#EEF2ED" stroke="#C6D2C2"/>
+  <text x="209" y="536" font-size="8.8" font-weight="600" fill="#3E5239" text-anchor="middle">cloud cdn</text>
+  <text x="209" y="550" font-size="8" fill="#8A9A86" text-anchor="middle">edge.cdn</text>
+
+  <rect x="289" y="516" width="139" height="46" rx="6" fill="#EEF2ED" stroke="#C6D2C2"/>
+  <text x="358" y="536" font-size="8.8" font-weight="600" fill="#3E5239" text-anchor="middle">gke</text>
+  <text x="358" y="550" font-size="8" fill="#8A9A86" text-anchor="middle">compute</text>
+
+  <rect x="438" y="516" width="139" height="46" rx="6" fill="#EEF2ED" stroke="#C6D2C2"/>
+  <text x="507" y="536" font-size="8.8" font-weight="600" fill="#3E5239" text-anchor="middle">cloud sql</text>
+  <text x="507" y="550" font-size="8" fill="#8A9A86" text-anchor="middle">rdbms · 只读副本</text>
+
+  <rect x="587" y="516" width="139" height="46" rx="6" fill="#EEF2ED" stroke="#C6D2C2"/>
+  <text x="656" y="536" font-size="8.8" font-weight="600" fill="#3E5239" text-anchor="middle">gcs</text>
+  <text x="656" y="550" font-size="8" fill="#8A9A86" text-anchor="middle">storage.object</text>
+
+  <text x="140" y="586" font-size="8.6" fill="#7A8085">两边数据是什么关系必须先写下来：Active-Passive / Active-Read / Active-Active —— 不定这一条，RTO / RPO 就是编的</text>
+
+  <!-- ===================== 右侧 P1 六项资产 ===================== -->
+  <rect x="770" y="100" width="430" height="244" rx="10" fill="#FFFFFF" stroke="#E3C7BE"/>
+  <text x="786" y="124" font-size="11.5" font-weight="600" fill="#8A5C4E">管理面资产：不与数据面共命运</text>
+  <text x="786" y="142" font-size="8.6" fill="#A9A49C">AWS 挂掉时还要能 terraform plan —— 否则连"恢复 AWS"都做不到</text>
+
+  <text x="786" y="164" font-size="8.2" font-weight="600" fill="#A9A49C">资产　现有位置</text>
+  <text x="1184" y="164" font-size="8.2" font-weight="600" fill="#A9A49C" text-anchor="end">正确位置</text>
+
+  <rect x="784" y="172" width="402" height="24" rx="4" fill="#FBF8F4"/>
+  <text x="794" y="188" font-size="8.8" fill="#5F6569">Terraform state　S3 + use_lockfile</text>
+  <text x="1176" y="188" font-size="8.8" font-weight="600" fill="#B5654F" text-anchor="end">Azure Blob + lease（仅新站）</text>
+
+  <rect x="784" y="200" width="402" height="24" rx="4" fill="#FFFFFF"/>
+  <text x="794" y="216" font-size="8.8" fill="#5F6569">Provider 凭据　Secrets Manager</text>
+  <text x="1176" y="216" font-size="8.8" font-weight="600" fill="#B5654F" text-anchor="end">Azure Key Vault</text>
+
+  <rect x="784" y="228" width="402" height="24" rx="4" fill="#FBF8F4"/>
+  <text x="794" y="244" font-size="8.8" fill="#5F6569">权威 DNS　Route 53</text>
+  <text x="1176" y="244" font-size="8.8" font-weight="600" fill="#B5654F" text-anchor="end">Azure DNS（已定）</text>
+
+  <rect x="784" y="256" width="402" height="24" rx="4" fill="#FFFFFF"/>
+  <text x="794" y="272" font-size="8.8" fill="#5F6569">CI Runner　未指定</text>
+  <text x="1176" y="272" font-size="8.8" font-weight="600" fill="#B5654F" text-anchor="end">GH-hosted + 自托管兜底</text>
+
+  <rect x="784" y="284" width="402" height="24" rx="4" fill="#FBF8F4"/>
+  <text x="794" y="300" font-size="8.8" fill="#5F6569">Console One　未指定</text>
+  <text x="1176" y="300" font-size="8.8" font-weight="600" fill="#B5654F" text-anchor="end">Azure</text>
+
+  <rect x="784" y="312" width="402" height="24" rx="4" fill="#FFFFFF"/>
+  <text x="794" y="328" font-size="8.8" fill="#5F6569">制品 / 镜像仓库　未指定</text>
+  <text x="1176" y="328" font-size="8.8" font-weight="600" fill="#B5654F" text-anchor="end">管理面 registry + 数据面只读</text>
+
+  <!-- ===================== P2 跨云入口 ===================== -->
+  <rect x="770" y="364" width="430" height="150" rx="10" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="786" y="388" font-size="11.5" font-weight="600" fill="#3A3E42">跨云入口：方案 A（DNS 层 failover）</text>
+
+  <rect x="784" y="398" width="402" height="48" rx="6" fill="#EEF2ED" stroke="#C6D2C2"/>
+  <text x="794" y="415" font-size="9.6" font-weight="600" fill="#3E5239">A · DNS 层 failover</text>
+  <rect x="1130" y="404" width="46" height="16" rx="8" fill="#8A9A86"/>
+  <text x="1153" y="416" font-size="8.2" fill="#FFFFFF" text-anchor="middle">已采纳</text>
+  <text x="794" y="432" font-size="8.2" fill="#5F6569">权威 DNS 迁 Azure DNS · 60s 级切换 · TTL 需按域分层</text>
+
+  <rect x="784" y="454" width="402" height="48" rx="6" fill="#FBF8F4" stroke="#E4D8C9"/>
+  <text x="794" y="471" font-size="9.6" font-weight="600" fill="#8A7052">B · Azure Front Door 做全局入口（本期不采用）</text>
+  <text x="794" y="488" font-size="8.2" fill="#8A7358">秒级切换 · 但 Azure 从此是数据面组件，全站可用性压在单一产品上</text>
+
+  <!-- ===================== P3 平台边界 ===================== -->
+  <rect x="770" y="534" width="430" height="120" rx="10" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="786" y="558" font-size="11.5" font-weight="600" fill="#3A3E42">平台在容灾中的角色边界</text>
+  <text x="786" y="580" font-size="8.8" font-weight="600" fill="#3E5239">做</text>
+  <text x="806" y="580" font-size="8.8" fill="#5F6569">展示矩阵 · 提供 runbook · 触发 workflow（双人确认）· 记录事件</text>
+  <text x="786" y="602" font-size="8.8" font-weight="600" fill="#B5654F">不做</text>
+  <text x="806" y="602" font-size="8.8" fill="#5F6569">改 DNS · 执行 failover · 持有提升权限 · 首期不做自动切换</text>
+  <line x1="786" y1="616" x2="1184" y2="616" stroke="#F0EDE7"/>
+  <text x="786" y="636" font-size="8.6" fill="#8A7052">误判的自动切换造成的损失，通常大于多停 5 分钟</text>
+
+  <!-- ===================== 切换矩阵 ===================== -->
+  <rect x="40" y="680" width="1160" height="250" rx="10" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="56" y="708" font-size="12" font-weight="600" fill="#3A3E42">切换矩阵 · 平台上最有价值的一页不是成本，是这张表</text>
+  <text x="56" y="726" font-size="8.8" fill="#A9A49C">没演练过的切换方案等于没有方案 —— "上次演练"超过 90 天自动标红</text>
+
+  <!-- header -->
+  <rect x="56" y="736" width="1128" height="28" rx="4" fill="#F4F3F0"/>
+  <text x="66" y="754" font-size="8.4" font-weight="600" fill="#8A9095">组件</text>
+  <text x="250" y="754" font-size="8.4" font-weight="600" fill="#8A9095">主</text>
+  <text x="416" y="754" font-size="8.4" font-weight="600" fill="#8A9095">备</text>
+  <text x="618" y="754" font-size="8.4" font-weight="600" fill="#8A9095">切换方式</text>
+  <text x="806" y="754" font-size="8.4" font-weight="600" fill="#8A9095">RTO</text>
+  <text x="880" y="754" font-size="8.4" font-weight="600" fill="#8A9095">RPO</text>
+  <text x="966" y="754" font-size="8.4" font-weight="600" fill="#8A9095">上次演练</text>
+  <text x="1082" y="754" font-size="8.4" font-weight="600" fill="#8A9095">状态</text>
+
+  <!-- row 1 -->
+  <text x="66" y="786" font-size="9" font-weight="600" fill="#3A3E42">图片站入口</text>
+  <text x="250" y="786" font-size="9" fill="#5F6569">AWS CloudFront</text>
+  <text x="416" y="786" font-size="9" fill="#5F6569">GCP Cloud CDN</text>
+  <text x="618" y="786" font-size="9" fill="#5F6569">DNS 改解析</text>
+  <text x="806" y="786" font-size="9" fill="#5F6569">5 min</text>
+  <text x="880" y="786" font-size="9" fill="#5F6569">0</text>
+  <text x="966" y="786" font-size="9" fill="#5F6569">2026-10-18</text>
+  <rect x="1076" y="774" width="44" height="17" rx="8.5" fill="#EEF2ED"/>
+  <text x="1098" y="786" font-size="8.2" fill="#3E5239" text-anchor="middle">正常</text>
+  <line x1="56" y1="796" x2="1184" y2="796" stroke="#F4F3F0"/>
+
+  <!-- row 2 -->
+  <text x="66" y="816" font-size="9" font-weight="600" fill="#3A3E42">PHOTOS 对象存储</text>
+  <text x="250" y="816" font-size="9" fill="#5F6569">AWS S3</text>
+  <text x="416" y="816" font-size="9" fill="#5F6569">GCP GCS（单向复制）</text>
+  <text x="618" y="816" font-size="9" fill="#5F6569">改回源 + 缓存预热</text>
+  <text x="806" y="816" font-size="9" fill="#5F6569">15 min</text>
+  <text x="880" y="816" font-size="9" fill="#5F6569">≤ 5 min</text>
+  <text x="966" y="816" font-size="9" fill="#5F6569">2026-10-18</text>
+  <rect x="1076" y="804" width="76" height="17" rx="8.5" fill="#FBF3E6"/>
+  <text x="1114" y="816" font-size="8.2" fill="#8A6B3A" text-anchor="middle">复制延迟偏高</text>
+  <line x1="56" y1="826" x2="1184" y2="826" stroke="#F4F3F0"/>
+
+  <!-- row 3 高危 -->
+  <rect x="56" y="826" width="1128" height="30" fill="#FDF7F5"/>
+  <text x="66" y="846" font-size="9" font-weight="600" fill="#3A3E42">订单数据库</text>
+  <text x="250" y="846" font-size="9" fill="#5F6569">AWS RDS</text>
+  <text x="416" y="846" font-size="9" fill="#5F6569">GCP Cloud SQL（只读）</text>
+  <text x="618" y="846" font-size="9" fill="#5F6569">提升只读为主 + 停写</text>
+  <text x="806" y="846" font-size="9" fill="#5F6569">40 min</text>
+  <text x="880" y="846" font-size="9" fill="#5F6569">≤ 1 min</text>
+  <text x="966" y="846" font-size="9" font-weight="600" fill="#B5654F">2026-08-02</text>
+  <rect x="1076" y="836" width="96" height="17" rx="8.5" fill="#FAF0ED"/>
+  <text x="1124" y="848" font-size="8.2" fill="#A9715C" text-anchor="middle">超 90 天未演练</text>
+  <line x1="56" y1="856" x2="1184" y2="856" stroke="#F0EDE7"/>
+
+  <!-- row 4 -->
+  <text x="66" y="876" font-size="9" font-weight="600" fill="#3A3E42">发布流水线</text>
+  <text x="250" y="876" font-size="9" fill="#5F6569">GitHub Actions</text>
+  <text x="416" y="876" font-size="9" fill="#5F6569">管理面自托管 Runner</text>
+  <text x="618" y="876" font-size="9" fill="#5F6569">切 workflow runner</text>
+  <text x="806" y="876" font-size="9" fill="#5F6569">10 min</text>
+  <text x="880" y="876" font-size="9" fill="#5F6569">0</text>
+  <text x="966" y="876" font-size="9" fill="#5F6569">2026-11-02</text>
+  <rect x="1076" y="864" width="44" height="17" rx="8.5" fill="#EEF2ED"/>
+  <text x="1098" y="876" font-size="8.2" fill="#3E5239" text-anchor="middle">正常</text>
+  <line x1="56" y1="886" x2="1184" y2="886" stroke="#F4F3F0"/>
+
+  <!-- row 5 -->
+  <text x="66" y="906" font-size="9" font-weight="600" fill="#3A3E42">Terraform state</text>
+  <text x="250" y="906" font-size="9" fill="#5F6569">Azure Blob</text>
+  <text x="416" y="906" font-size="9" fill="#5F6569">—</text>
+  <text x="618" y="906" font-size="9" fill="#5F6569">无需切换（已不在数据面）</text>
+  <text x="806" y="906" font-size="9" fill="#5F6569">0</text>
+  <text x="880" y="906" font-size="9" fill="#5F6569">0</text>
+  <text x="966" y="906" font-size="9" fill="#5F6569">—</text>
+  <rect x="1076" y="894" width="44" height="17" rx="8.5" fill="#EEF2ED"/>
+  <text x="1098" y="906" font-size="8.2" fill="#3E5239" text-anchor="middle">正常</text>
+
+  <!-- 底部说明 -->
+  <text x="40" y="952" font-size="9.2" fill="#A9A49C">三条规则：① 超过 90 天未演练自动标红，且不允许被静音　② RTO 必须可度量，演练要记录实际耗时并与目标对比　③ 切换动作本身走 GitHub workflow，平台不直接改 DNS</text>
+</svg>

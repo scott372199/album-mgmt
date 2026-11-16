@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 800" width="1240" height="800" font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <marker id="a4" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="#A9A49C"/>
+    </marker>
+    <marker id="a4r" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="#C08B7D"/>
+    </marker>
+  </defs>
+  <rect width="1240" height="800" fill="#FAF9F7"/>
+
+  <text x="40" y="44" font-size="21" font-weight="600" fill="#2E3134">漂移检测 · 双通道链路</text>
+  <text x="40" y="68" font-size="12" fill="#8A9095">漂移不是一个问题，是三个不同的问题。先分类，再决定紧急度与处置动作</text>
+
+  <!-- ============ Row1 事实源 ============ -->
+  <rect x="40" y="100" width="180" height="88" rx="8" fill="#FFFFFF" stroke="#D2CCD8"/>
+  <text x="130" y="124" font-size="12" font-weight="600" fill="#5B5468" text-anchor="middle">Git 仓库</text>
+  <text x="130" y="144" font-size="10.5" fill="#8A9094" text-anchor="middle">Terraform 代码</text>
+  <text x="130" y="162" font-size="10.5" fill="#A9A49C" text-anchor="middle">期望状态的声明源</text>
+  <text x="130" y="178" font-size="10.2" fill="#A9A49C" text-anchor="middle">commit sha 固定版本</text>
+
+  <rect x="240" y="100" width="180" height="88" rx="8" fill="#FFFFFF" stroke="#C3CFDA"/>
+  <text x="330" y="124" font-size="12" font-weight="600" fill="#43536B" text-anchor="middle">Terraform state</text>
+  <text x="330" y="144" font-size="10.5" fill="#6B7F94" text-anchor="middle">S3 backend 快照</text>
+  <text x="330" y="162" font-size="10.5" fill="#A9A49C" text-anchor="middle">show -json 解析为</text>
+  <text x="330" y="178" font-size="10.5" fill="#A9A49C" text-anchor="middle">tf_resource 表</text>
+
+  <rect x="440" y="100" width="180" height="88" rx="8" fill="#FFFFFF" stroke="#C3CFDA"/>
+  <text x="530" y="124" font-size="12" font-weight="600" fill="#43536B" text-anchor="middle">云 API 采集</text>
+  <text x="530" y="144" font-size="10.5" fill="#6B7F94" text-anchor="middle">Describe / List</text>
+  <text x="530" y="162" font-size="10.5" fill="#A9A49C" text-anchor="middle">归一为 resource.config</text>
+  <text x="530" y="178" font-size="10.5" fill="#A9A49C" text-anchor="middle">实际状态</text>
+
+  <!-- 字段映射表 -->
+  <rect x="650" y="100" width="550" height="88" rx="8" fill="#FBF8F4" stroke="#E4D8C9"/>
+  <text x="666" y="120" font-size="11.5" font-weight="600" fill="#8A7052">字段映射表（这部分的核心资产，不是代码）</text>
+  <text x="666" y="139" font-size="9.8" fill="#8A7358" font-family="'SF Mono', Consolas, monospace">aws:s3:bucket:</text>
+  <text x="666" y="154" font-size="9.8" fill="#8A7358" font-family="'SF Mono', Consolas, monospace">  tags:            { tf: tags, cmp: subset }</text>
+  <text x="666" y="169" font-size="9.8" fill="#8A7358" font-family="'SF Mono', Consolas, monospace">  public_access:   { tf: public_access_block, cmp: exact }</text>
+  <text x="666" y="184" font-size="9.8" fill="#8A7358" font-family="'SF Mono', Consolas, monospace">  encryption:      { tf: server_side_encryption_configuration, cmp: normalized }</text>
+
+  <!-- bus -->
+  <rect x="40" y="206" width="1160" height="6" rx="3" fill="#E2DFD9"/>
+  <line x1="130" y1="188" x2="130" y2="206" stroke="#A9A49C" stroke-width="1.2"/>
+  <line x1="330" y1="188" x2="330" y2="206" stroke="#A9A49C" stroke-width="1.2"/>
+  <line x1="530" y1="188" x2="530" y2="206" stroke="#A9A49C" stroke-width="1.2"/>
+  <line x1="925" y1="188" x2="925" y2="206" stroke="#A9A49C" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <text x="1130" y="198" font-size="10" fill="#A9A49C" text-anchor="end">事实总线 · 同一次判定必须用同一 commit 的 state + 同批次的采集结果</text>
+
+  <!-- ============ Row2 双通道 ============ -->
+  <line x1="300" y1="212" x2="300" y2="230" stroke="#A9A49C" stroke-width="1.2"/>
+  <line x1="895" y1="212" x2="895" y2="230" stroke="#A9A49C" stroke-width="1.2"/>
+
+  <rect x="40" y="232" width="520" height="96" rx="9" fill="#FFFFFF" stroke="#C3CFDA" stroke-width="1.3"/>
+  <rect x="40" y="232" width="4" height="96" rx="2" fill="#6B7F94"/>
+  <text x="60" y="254" font-size="12.5" font-weight="600" fill="#3A4653">通道 A · API 属性对账（主）</text>
+  <text x="60" y="274" font-size="10.6" fill="#7A8085">每日 03:00 · 纯本地比对，复用已有采集数据，几乎零成本</text>
+  <text x="60" y="292" font-size="10.6" fill="#7A8085">先比 config_hash / tags_hash，命中才做字段级深比对</text>
+  <text x="60" y="312" font-size="10.6" fill="#4E6349">覆盖约 80% 的常见漂移：标签、加密、公开访问、生命周期、超时</text>
+
+  <rect x="590" y="232" width="610" height="96" rx="9" fill="#FFFFFF" stroke="#DCCFBE" stroke-width="1.3"/>
+  <rect x="590" y="232" width="4" height="96" rx="2" fill="#A8907E"/>
+  <text x="610" y="254" font-size="12.5" font-weight="600" fill="#6E5B49">通道 B · terraform plan -refresh-only（权威校验）</text>
+  <text x="610" y="274" font-size="10.6" fill="#7A8085">每周日 04:00 · 在专用 CI Runner 执行，解析 -json 输出中的 resource_drift</text>
+  <text x="610" y="292" font-size="10.6" fill="#7A8085">覆盖全部属性，是通道 A 的校准基准</text>
+  <text x="610" y="312" font-size="10.6" fill="#8A7052">不每日执行：2000 资源全量 refresh 需数千次 API 调用，且需长期驻留高权限凭据</text>
+
+  <!-- ============ Row3 判定 ============ -->
+  <line x1="300" y1="328" x2="300" y2="364" stroke="#A9A49C" stroke-width="1.4" marker-end="url(#a4)"/>
+  <line x1="895" y1="328" x2="895" y2="364" stroke="#A9A49C" stroke-width="1.4" marker-end="url(#a4)"/>
+
+  <rect x="40" y="368" width="1160" height="80" rx="9" fill="#F7EDEA" stroke="#E3C7BE" stroke-width="1.4"/>
+  <text x="60" y="390" font-size="12.5" font-weight="600" fill="#8A5C4E">差异判定与分级</text>
+  <text x="60" y="410" font-size="10.6" fill="#8A6A5E">① 资源匹配：provider + native_id ↔ tf_address（state 中 resources[].instances[].attributes）</text>
+  <text x="60" y="428" font-size="10.6" fill="#8A6A5E">② 集合运算得出三类：state 有云上无 → MISSING　｜　两边都有但属性不符 → MODIFIED　｜　云上有 state 无 → UNMANAGED</text>
+  <text x="60" y="444" font-size="10.6" fill="#C08B7D">③ 去重：部分唯一索引 (kind, resource_id, tf_address) WHERE status IN (OPEN, ACKED)，同一问题不重复开单</text>
+
+  <!-- ============ Row4 三类 ============ -->
+  <line x1="225" y1="448" x2="225" y2="482" stroke="#C08B7D" stroke-width="1.4" marker-end="url(#a4r)"/>
+  <line x1="620" y1="448" x2="620" y2="482" stroke="#C08B7D" stroke-width="1.4" marker-end="url(#a4r)"/>
+  <line x1="1015" y1="448" x2="1015" y2="482" stroke="#C08B7D" stroke-width="1.4" marker-end="url(#a4r)"/>
+
+  <rect x="40" y="484" width="370" height="126" rx="9" fill="#FFFFFF" stroke="#E3C7BE"/>
+  <rect x="40" y="484" width="370" height="30" rx="9" fill="#F7EDEA"/>
+  <rect x="40" y="504" width="370" height="10" fill="#F7EDEA"/>
+  <text x="60" y="504" font-size="12" font-weight="600" fill="#8A5C4E">MISSING · P0</text>
+  <text x="60" y="534" font-size="10.6" fill="#7A8085">state 里有，云上没了</text>
+  <text x="60" y="554" font-size="10.6" fill="#7A8085">成因：控制台手工删除、误删、账号迁移</text>
+  <text x="60" y="578" font-size="10.6" fill="#C08B7D">立即告警 → 生成「恢复资源 或 从 state 移除」PR</text>
+  <text x="60" y="598" font-size="10.4" fill="#A9A49C">5 分钟内送达责任人（飞书）</text>
+
+  <rect x="435" y="484" width="370" height="126" rx="9" fill="#FFFFFF" stroke="#DCCFBE"/>
+  <rect x="435" y="484" width="370" height="30" rx="9" fill="#F5F0EA"/>
+  <rect x="435" y="504" width="370" height="10" fill="#F5F0EA"/>
+  <text x="455" y="504" font-size="12" font-weight="600" fill="#6E5B49">MODIFIED · P1</text>
+  <text x="455" y="534" font-size="10.6" fill="#7A8085">state 有，云上属性被改</text>
+  <text x="455" y="554" font-size="10.6" fill="#7A8085">成因：控制台临时改配置、调试后忘回滚</text>
+  <text x="455" y="578" font-size="10.6" fill="#A8907E">生成 revert PR 或确认后更新代码</text>
+  <text x="455" y="598" font-size="10.4" fill="#A9A49C">按字段白名单抑制噪音（如 last_modified）</text>
+
+  <rect x="830" y="484" width="370" height="126" rx="9" fill="#FFFFFF" stroke="#C6D2C2"/>
+  <rect x="830" y="484" width="370" height="30" rx="9" fill="#EEF2ED"/>
+  <rect x="830" y="504" width="370" height="10" fill="#EEF2ED"/>
+  <text x="850" y="504" font-size="12" font-weight="600" fill="#3E5239">UNMANAGED · P2/P3</text>
+  <text x="850" y="534" font-size="10.6" fill="#7A8085">云上有，state 里没有</text>
+  <text x="850" y="554" font-size="10.6" fill="#7A8085">成因：手工创建、脚本创建、快照恢复</text>
+  <text x="850" y="578" font-size="10.6" fill="#4E6349">生成 import PR 或标记豁免（需到期时间）</text>
+  <text x="850" y="598" font-size="10.4" fill="#A9A49C">同时是「僵尸资源」与成本漏归因的来源</text>
+
+  <!-- ============ Row5 闭环 ============ -->
+  <line x1="225" y1="610" x2="225" y2="638" stroke="#A9A49C" stroke-width="1.2"/>
+  <line x1="620" y1="610" x2="620" y2="638" stroke="#A9A49C" stroke-width="1.2"/>
+  <line x1="1015" y1="610" x2="1015" y2="638" stroke="#A9A49C" stroke-width="1.2"/>
+
+  <rect x="40" y="640" width="1160" height="94" rx="9" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="60" y="662" font-size="12" font-weight="600" fill="#3A3E42">闭环：每条漂移 → 一键生成 Terraform PR（平台不直接改云上资源）</text>
+  <rect x="60" y="672" width="150" height="26" rx="5" fill="#F5F0EA" stroke="#DCCFBE"/>
+  <text x="135" y="689" font-size="10.4" fill="#6E5B49" text-anchor="middle">revert · 还原云上配置</text>
+  <rect x="222" y="672" width="150" height="26" rx="5" fill="#EEF2ED" stroke="#C6D2C2"/>
+  <text x="297" y="689" font-size="10.4" fill="#3E5239" text-anchor="middle">import · 纳管现有资源</text>
+  <rect x="384" y="672" width="160" height="26" rx="5" fill="#EDF1F4" stroke="#C3CFDA"/>
+  <text x="464" y="689" font-size="10.4" fill="#43536B" text-anchor="middle">adopt · 代码化新增配置</text>
+  <text x="566" y="689" font-size="10.4" fill="#7A8085">PR 描述自动带 diff、责任团队、影响范围</text>
+
+  <text x="60" y="720" font-size="10.6" fill="#7A8085">状态机　</text>
+  <rect x="118" y="706" width="70" height="20" rx="4" fill="#F7EDEA" stroke="#E3C7BE"/>
+  <text x="153" y="720" font-size="10" fill="#8A5C4E" text-anchor="middle">OPEN</text>
+  <text x="196" y="721" font-size="11" fill="#A9A49C">→</text>
+  <rect x="210" y="706" width="70" height="20" rx="4" fill="#F5F0EA" stroke="#DCCFBE"/>
+  <text x="245" y="720" font-size="10" fill="#6E5B49" text-anchor="middle">ACKED</text>
+  <text x="288" y="721" font-size="11" fill="#A9A49C">→</text>
+  <rect x="302" y="706" width="70" height="20" rx="4" fill="#EEF2ED" stroke="#C6D2C2"/>
+  <text x="337" y="720" font-size="10" fill="#3E5239" text-anchor="middle">FIXED</text>
+  <text x="392" y="721" font-size="10.6" fill="#C08B7D">ACKED 必须填写原因与豁免到期时间 —— 否则漂移看板会变成噪音垃圾桶，最终被全员静音</text>
+
+  <text x="40" y="774" font-size="11" fill="#A9A49C">资源量或漂移敏感度上升时，只需扩展通道 A 的字段映射表覆盖面，架构不变 —— 这是双通道设计的可演进性所在。</text>
+</svg>

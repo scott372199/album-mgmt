@@ -1,0 +1,210 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 800" width="1240" height="800" font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <marker id="e1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 z" fill="#8A9095"/>
+    </marker>
+    <marker id="e2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 z" fill="#B0B5B9"/>
+    </marker>
+    <marker id="e3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 z" fill="#C08B7D"/>
+    </marker>
+  </defs>
+  <rect width="1240" height="800" fill="#FAF9F7"/>
+
+  <text x="40" y="42" font-size="21" font-weight="600" fill="#2E3134">服务图谱 · 数据流视图（五层拓扑）</text>
+  <text x="40" y="66" font-size="12" fill="#8A9095">不画 1800 个资源的自由布局图 —— 人脑在一屏内只能理解分层的东西</text>
+
+  <!-- ===== 层带 ===== -->
+  <rect x="100" y="104" width="780" height="48" rx="8" fill="#FFFFFF" stroke="#EBE8E2"/>
+  <rect x="100" y="164" width="780" height="56" rx="8" fill="#FBFAF8" stroke="#EBE8E2"/>
+  <rect x="100" y="232" width="780" height="56" rx="8" fill="#FFFFFF" stroke="#EBE8E2"/>
+  <rect x="100" y="300" width="780" height="66" rx="8" fill="#FBFAF8" stroke="#EBE8E2"/>
+  <rect x="100" y="378" width="780" height="66" rx="8" fill="#FFFFFF" stroke="#EBE8E2"/>
+  <rect x="100" y="456" width="780" height="52" rx="8" fill="#FBFAF8" stroke="#EBE8E2"/>
+
+  <text x="44" y="126" font-size="10" font-weight="600" fill="#8A9095">L0</text>
+  <text x="44" y="139" font-size="9.5" fill="#A9A49C">入口</text>
+  <text x="44" y="190" font-size="10" font-weight="600" fill="#8A9095">L1</text>
+  <text x="44" y="203" font-size="9.5" fill="#A9A49C">边缘</text>
+  <text x="44" y="258" font-size="10" font-weight="600" fill="#8A9095">L2</text>
+  <text x="44" y="271" font-size="9.5" fill="#A9A49C">接入</text>
+  <text x="44" y="330" font-size="10" font-weight="600" fill="#8A9095">L3</text>
+  <text x="44" y="343" font-size="9.5" fill="#A9A49C">应用</text>
+  <text x="44" y="408" font-size="10" font-weight="600" fill="#8A9095">L4</text>
+  <text x="44" y="421" font-size="9.5" fill="#A9A49C">数据</text>
+  <text x="44" y="480" font-size="10" font-weight="600" fill="#8A9095">L5</text>
+  <text x="44" y="493" font-size="9.5" fill="#A9A49C">支撑</text>
+
+  <!-- ===== 边（先画，压在节点下） ===== -->
+  <!-- L0 -> L1 -->
+  <line x1="435" y1="146" x2="400" y2="170" stroke="#8A9095" stroke-width="1.3" marker-end="url(#e1)"/>
+  <!-- ACM -> CF (dashed) -->
+  <line x1="500" y1="212" x2="442" y2="196" stroke="#B0B5B9" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#e2)"/>
+  <!-- CF -> ALB -->
+  <line x1="345" y1="214" x2="398" y2="238" stroke="#8A9095" stroke-width="1.3" marker-end="url(#e1)"/>
+  <!-- CF -> S3 (dashed, origin) -->
+  <line x1="300" y1="214" x2="340" y2="386" stroke="#B0B5B9" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#e2)"/>
+  <text x="286" y="290" font-size="8.8" fill="#A9A49C" transform="rotate(80 286 290)">origin 回源</text>
+  <!-- ALB -> app -->
+  <line x1="400" y1="288" x2="250" y2="308" stroke="#8A9095" stroke-width="1.3" marker-end="url(#e1)"/>
+  <line x1="470" y1="288" x2="565" y2="308" stroke="#8A9095" stroke-width="1.3" marker-end="url(#e1)"/>
+  <!-- app -> data -->
+  <line x1="225" y1="366" x2="205" y2="386" stroke="#8A9095" stroke-width="1.3" marker-end="url(#e1)"/>
+  <line x1="280" y1="366" x2="490" y2="386" stroke="#8A9095" stroke-width="1.2" marker-end="url(#e1)"/>
+  <line x1="425" y1="366" x2="530" y2="386" stroke="#8A9095" stroke-width="1.2" marker-end="url(#e1)"/>
+  <line x1="560" y1="366" x2="400" y2="386" stroke="#8A9095" stroke-width="1.2" marker-end="url(#e1)"/>
+  <!-- 跨云 -->
+  <line x1="300" y1="345" x2="615" y2="386" stroke="#C08B7D" stroke-width="1.5" stroke-dasharray="6 3" marker-end="url(#e3)"/>
+  <text x="455" y="372" font-size="9" fill="#C08B7D">跨云 · 采集外流量</text>
+  <!-- 支撑层 -->
+  <path d="M180,330 L120,330 L120,478 L165,478" fill="none" stroke="#B0B5B9" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#e2)"/>
+  <line x1="235" y1="444" x2="285" y2="460" stroke="#B0B5B9" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#e2)"/>
+
+  <!-- ===== 节点 ===== -->
+  <!-- L0 -->
+  <rect x="360" y="110" width="150" height="36" rx="6" fill="#EDF1F4" stroke="#C3CFDA"/>
+  <rect x="360" y="110" width="3" height="36" rx="1.5" fill="#6B7F94"/>
+  <text x="440" y="126" font-size="10.5" font-weight="600" fill="#43536B" text-anchor="middle">route53</text>
+  <text x="440" y="140" font-size="8.8" fill="#6B7F94" text-anchor="middle">dns</text>
+
+  <!-- L1 -->
+  <rect x="280" y="170" width="160" height="44" rx="6" fill="#EDF1F4" stroke="#C3CFDA"/>
+  <rect x="280" y="170" width="3" height="44" rx="1.5" fill="#6B7F94"/>
+  <text x="368" y="188" font-size="10.5" font-weight="600" fill="#43536B" text-anchor="middle">cloudfront</text>
+  <text x="368" y="202" font-size="8.8" fill="#6B7F94" text-anchor="middle">edge.cdn · confidence 0.98</text>
+
+  <rect x="460" y="170" width="90" height="44" rx="6" fill="#F4F3F0" stroke="#DDD9D2"/>
+  <text x="505" y="188" font-size="10.5" font-weight="600" fill="#5F6569" text-anchor="middle">acm</text>
+  <text x="505" y="202" font-size="8.8" fill="#A9A49C" text-anchor="middle">cert</text>
+
+  <!-- L2 -->
+  <rect x="350" y="238" width="150" height="44" rx="6" fill="#EDF1F4" stroke="#C3CFDA"/>
+  <rect x="350" y="238" width="3" height="44" rx="1.5" fill="#6B7F94"/>
+  <text x="432" y="256" font-size="10.5" font-weight="600" fill="#43536B" text-anchor="middle">alb-payments</text>
+  <text x="432" y="270" font-size="8.8" fill="#6B7F94" text-anchor="middle">lb</text>
+
+  <!-- L3 -->
+  <rect x="180" y="308" width="120" height="58" rx="6" fill="#EEF2ED" stroke="#C6D2C2"/>
+  <rect x="180" y="308" width="3" height="58" rx="1.5" fill="#8A9A86"/>
+  <text x="246" y="326" font-size="10.5" font-weight="600" fill="#3E5239" text-anchor="middle">pay-api</text>
+  <text x="246" y="340" font-size="8.8" fill="#8A9A86" text-anchor="middle">service · tier1</text>
+  <text x="246" y="354" font-size="8.8" fill="#A9A49C" text-anchor="middle">EKS</text>
+
+  <rect x="340" y="308" width="140" height="58" rx="6" fill="#EEF2ED" stroke="#C6D2C2"/>
+  <rect x="340" y="308" width="3" height="58" rx="1.5" fill="#8A9A86"/>
+  <text x="416" y="326" font-size="10.5" font-weight="600" fill="#3E5239" text-anchor="middle">pay-settle</text>
+  <text x="416" y="340" font-size="8.8" fill="#8A9A86" text-anchor="middle">service · tier1</text>
+  <text x="416" y="354" font-size="8.8" fill="#A9A49C" text-anchor="middle">EKS</text>
+
+  <rect x="510" y="308" width="130" height="58" rx="6" fill="#EEF2ED" stroke="#C6D2C2"/>
+  <rect x="510" y="308" width="3" height="58" rx="1.5" fill="#8A9A86"/>
+  <text x="580" y="326" font-size="10.5" font-weight="600" fill="#3E5239" text-anchor="middle">web-site</text>
+  <text x="580" y="340" font-size="8.8" fill="#8A9A86" text-anchor="middle">service · tier2</text>
+  <text x="580" y="354" font-size="8.8" fill="#A9A49C" text-anchor="middle">EKS</text>
+
+  <!-- L4 -->
+  <rect x="150" y="386" width="120" height="52" rx="6" fill="#F5F0EA" stroke="#DCCFBE"/>
+  <rect x="150" y="386" width="3" height="52" rx="1.5" fill="#A8907E"/>
+  <text x="216" y="404" font-size="10.5" font-weight="600" fill="#6E5B49" text-anchor="middle">pay-db</text>
+  <text x="216" y="418" font-size="8.8" fill="#A8907E" text-anchor="middle">rdbms · $3,860</text>
+  <text x="216" y="431" font-size="8.5" fill="#C08B7D" text-anchor="middle">tier1</text>
+
+  <rect x="300" y="386" width="110" height="52" rx="6" fill="#F5F0EA" stroke="#DCCFBE"/>
+  <rect x="300" y="386" width="3" height="52" rx="1.5" fill="#A8907E"/>
+  <text x="360" y="404" font-size="10.5" font-weight="600" fill="#6E5B49" text-anchor="middle">s3-assets</text>
+  <text x="360" y="418" font-size="8.8" fill="#A8907E" text-anchor="middle">storage.object</text>
+  <text x="360" y="431" font-size="8.5" fill="#A9A49C" text-anchor="middle">未打标</text>
+
+  <rect x="440" y="386" width="120" height="52" rx="6" fill="#F5F0EA" stroke="#DCCFBE"/>
+  <rect x="440" y="386" width="3" height="52" rx="1.5" fill="#A8907E"/>
+  <text x="506" y="404" font-size="10.5" font-weight="600" fill="#6E5B49" text-anchor="middle">elasticache</text>
+  <text x="506" y="418" font-size="8.8" fill="#A8907E" text-anchor="middle">cache</text>
+  <text x="506" y="431" font-size="8.5" fill="#A9A49C" text-anchor="middle">$890</text>
+
+  <rect x="590" y="386" width="130" height="52" rx="6" fill="#ECF2F1" stroke="#C0D2D0"/>
+  <rect x="590" y="386" width="3" height="52" rx="1.5" fill="#7E9A99"/>
+  <text x="661" y="404" font-size="10.5" font-weight="600" fill="#45605E" text-anchor="middle">bq-analytics</text>
+  <text x="661" y="418" font-size="8.8" fill="#7E9A99" text-anchor="middle">GCP · warehouse</text>
+  <text x="661" y="431" font-size="8.5" fill="#A9A49C" text-anchor="middle">asia-northeast1</text>
+
+  <!-- L5 -->
+  <rect x="110" y="462" width="115" height="40" rx="6" fill="#F2F0F4" stroke="#D2CCD8"/>
+  <text x="167" y="479" font-size="10" font-weight="600" fill="#5B5468" text-anchor="middle">secrets</text>
+  <text x="167" y="492" font-size="8.5" fill="#8C8497" text-anchor="middle">secret</text>
+
+  <rect x="250" y="462" width="105" height="40" rx="6" fill="#F2F0F4" stroke="#D2CCD8"/>
+  <text x="302" y="479" font-size="10" font-weight="600" fill="#5B5468" text-anchor="middle">kms-pay</text>
+  <text x="302" y="492" font-size="8.5" fill="#8C8497" text-anchor="middle">kms</text>
+
+  <!-- 图例 -->
+  <rect x="620" y="456" width="250" height="52" rx="8" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="632" y="472" font-size="9" fill="#8A9095">provider 色环</text>
+  <circle cx="640" cy="486" r="4" fill="none" stroke="#6B7F94" stroke-width="1.6"/>
+  <text x="650" y="489" font-size="8.8" fill="#6B7F94">AWS</text>
+  <circle cx="690" cy="486" r="4" fill="none" stroke="#8A9A86" stroke-width="1.6"/>
+  <text x="700" y="489" font-size="8.8" fill="#8A9A86">GCP</text>
+  <circle cx="750" cy="486" r="4" fill="none" stroke="#C08B7D" stroke-width="1.6"/>
+  <text x="760" y="489" font-size="8.8" fill="#C08B7D">Azure</text>
+  <text x="632" y="501" font-size="8.5" fill="#A9A49C">节点左侧色条当前用 canonical_type 分组</text>
+
+  <!-- ===== 右侧面板 ===== -->
+  <rect x="900" y="104" width="300" height="212" rx="10" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="914" y="126" font-size="11.5" font-weight="600" fill="#3A3E42">关系从哪来（按可信度）</text>
+  <text x="914" y="142" font-size="8.8" fill="#A9A49C">纯自动的一定不准，纯手工的一定没人维护</text>
+
+  <rect x="914" y="152" width="272" height="28" rx="5" fill="#EEF2ED"/>
+  <text x="922" y="170" font-size="9.2" font-weight="600" fill="#3E5239">① IaC 依赖图</text>
+  <text x="1178" y="170" font-size="9.2" fill="#4E6349" text-anchor="end">0.95</text>
+  <rect x="914" y="184" width="272" height="28" rx="5" fill="#F5F0EA"/>
+  <text x="922" y="202" font-size="9.2" font-weight="600" fill="#6E5B49">② 资源配置引用</text>
+  <text x="1178" y="202" font-size="9.2" fill="#8A7052" text-anchor="end">0.90</text>
+  <rect x="914" y="216" width="272" height="28" rx="5" fill="#ECF2F1"/>
+  <text x="922" y="234" font-size="9.2" font-weight="600" fill="#45605E">③ 运行时流量</text>
+  <text x="1178" y="234" font-size="9.2" fill="#7E9A99" text-anchor="end">0.85</text>
+  <rect x="914" y="248" width="272" height="28" rx="5" fill="#F3F1F5"/>
+  <text x="922" y="266" font-size="9.2" font-weight="600" fill="#5B5468">④ 仓库部署配置</text>
+  <text x="1178" y="266" font-size="9.2" fill="#8C8497" text-anchor="end">0.75</text>
+  <rect x="914" y="280" width="272" height="26" rx="5" fill="#F4F3F0"/>
+  <text x="922" y="297" font-size="9.2" font-weight="600" fill="#5F6569">⑤ 标签（只做归属，不建边）</text>
+  <text x="1178" y="297" font-size="9.2" fill="#8A9095" text-anchor="end">0.70</text>
+
+  <rect x="900" y="330" width="300" height="112" rx="10" fill="#FFFFFF" stroke="#E2DFD9"/>
+  <text x="914" y="352" font-size="11.5" font-weight="600" fill="#3A3E42">线的含义</text>
+  <line x1="914" y1="372" x2="950" y2="372" stroke="#8A9095" stroke-width="1.4"/>
+  <text x="958" y="375" font-size="9" fill="#7A8085">confidence ≥ 0.9 · 已确认</text>
+  <line x1="914" y1="392" x2="950" y2="392" stroke="#B0B5B9" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="958" y="395" font-size="9" fill="#7A8085">confidence &lt; 0.9 · 待确认</text>
+  <line x1="914" y1="412" x2="950" y2="412" stroke="#C08B7D" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <text x="958" y="415" font-size="9" fill="#7A8085">跨云流量（成本与延迟的隐藏项）</text>
+  <text x="914" y="434" font-size="8.6" fill="#A9A49C">人工确认后置 confirmed=true，自动推断不再覆盖</text>
+
+  <rect x="900" y="456" width="300" height="176" rx="10" fill="#FFFFFF" stroke="#E3C7BE"/>
+  <text x="914" y="478" font-size="11.5" font-weight="600" fill="#8A5C4E">影响面分析 · blast radius</text>
+  <text x="914" y="494" font-size="8.8" fill="#A9A49C">反向遍历依赖边，最有实用价值的输出</text>
+  <text x="914" y="516" font-size="9.4" fill="#7A8085">给定：pay-db（rdbms · tier1）</text>
+  <line x1="914" y1="526" x2="1186" y2="526" stroke="#F0EDE7"/>
+  <text x="914" y="546" font-size="9.4" fill="#3E5239">直接影响</text>
+  <text x="1186" y="546" font-size="9.4" font-weight="600" fill="#3E5239" text-anchor="end">2 个服务</text>
+  <text x="914" y="566" font-size="9.4" fill="#7A8085">间接影响（三跳内）</text>
+  <text x="1186" y="566" font-size="9.4" font-weight="600" fill="#7A8085" text-anchor="end">3 个服务</text>
+  <text x="914" y="586" font-size="9.4" fill="#7A8085">涉及 P0 资源</text>
+  <text x="1186" y="586" font-size="9.4" font-weight="600" fill="#A9715C" text-anchor="end">7 个 / 跨 2 账号</text>
+  <line x1="914" y1="596" x2="1186" y2="596" stroke="#F0EDE7"/>
+  <text x="914" y="614" font-size="8.8" fill="#A9715C">落地：发布门禁 · 变更评审附件 · 故障定界</text>
+
+  <rect x="900" y="644" width="300" height="76" rx="10" fill="#FBF8F4" stroke="#E4D8C9"/>
+  <text x="914" y="666" font-size="11" font-weight="600" fill="#8A7052">平台自身 KPI：未归属率</text>
+  <text x="914" y="686" font-size="9" fill="#8A7358">覆盖不全的图谱给出的"影响面"是错的，</text>
+  <text x="914" y="702" font-size="9" fill="#8A7358">而错误的结论比没有结论更危险。目标 &lt; 10%。</text>
+
+  <!-- 底部说明 -->
+  <text x="40" y="534" font-size="10" fill="#A9A49C">L0..L5 分层的目的：</text>
+  <text x="40" y="550" font-size="10" fill="#A9A49C">让人脑在一屏内</text>
+  <text x="40" y="566" font-size="10" fill="#A9A49C">理解整条链路。</text>
+  <text x="40" y="590" font-size="10" fill="#8A9095">点任意节点可下钻</text>
+  <text x="40" y="606" font-size="10" fill="#8A9095">到资源清单。</text>
+
+  <text x="40" y="748" font-size="10.8" fill="#A9A49C">关系的第一来源不是流量、不是埋点，而是 Terraform 代码里的 <tspan font-family="'SF Mono', Consolas, monospace" fill="#7A8085">references</tspan> —— 关系早就写在那里了，只是没人去读。</text>
+  <text x="40" y="768" font-size="10.8" fill="#A9A49C">一次 <tspan font-family="'SF Mono', Consolas, monospace" fill="#7A8085">terraform show -json</tspan> 就能拿到 <tspan font-family="'SF Mono', Consolas, monospace" fill="#7A8085">configuration.root_module</tspan> 下每个属性的引用列表，方向即依赖方向。</text>
+</svg>
